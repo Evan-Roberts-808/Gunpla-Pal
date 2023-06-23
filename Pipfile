@@ -1,0 +1,25 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-cors = "*"
+flask-migrate = "*"
+flask-sqlalchemy = "*"
+sqlalchemy = "*"
+sqlalchemy-serializer = "*"
+alembic = "*"
+flask-restful = "*"
+ipdb = "*"
+requests = "*"
+beautifulsoup4 = "*"
+selenium = "*"
+honcho = "*"
+gunicorn = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
