@@ -18,6 +18,7 @@ beautifulsoup4 = "*"
 selenium = "*"
 honcho = "*"
 gunicorn = "*"
+flask-login = "*"
 
 [dev-packages]
 
