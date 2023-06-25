@@ -29,6 +29,7 @@ class Gunpla(db.Model, SerializerMixin):
     model = db.Column(db.String)
     model_num = db.Column(db.String)
     series = db.Column(db.String)
+    price = db.Column(db.String)
     release_date = db.Column(db.String)
     notes = db.Column(db.String)
 
