@@ -7,6 +7,8 @@ from sqlalchemy_serializer import SerializerMixin
 from collections import OrderedDict
 from flask_login import UserMixin, LoginManager
 
+from config import db
+
 convention = {
     "ix": "ix_%(column_0_label)s",
     "uq": "uq_%(table_name)s_%(column_0_name)s",
@@ -17,14 +19,12 @@ convention = {
 
 metadata = MetaData(naming_convention=convention)
 
-from config import db
-
 ##################Models Below####################
 class Gunpla(db.Model, SerializerMixin):
     __tablename__ = 'gunplas'
 
-    #columns
-    id = db.Column(db.Integer, primary_key = True)
+    # columns
+    id = db.Column(db.Integer, primary_key=True)
     grade = db.Column(db.String)
     model = db.Column(db.String)
     model_num = db.Column(db.String)
@@ -32,22 +32,23 @@ class Gunpla(db.Model, SerializerMixin):
     release_date = db.Column(db.String)
     notes = db.Column(db.String)
 
-    #relationships
-    collection = db.relationship('Collection', back_populates ='gunpla')    
-    wishlist = db.relationship('Wishlist', back_popualtes = 'gunpla')
-    
-    #serialize rules
+    # relationships
+    collection = db.relationship('Collection', back_populates='gunpla')
+    wishlist = db.relationship('Wishlist', back_populates='gunpla')
+
+    # serialize rules
     serialize_rules = ('-collection.gunpla', '-wishlist.gunpla')
 
-    #representation
+    # representation
     def __repr__(self):
         return f'''ID: {self.id}, 
         Grade: {self.grade}, 
         Model: {self.model}, 
-        Model_num: {self.modeul_num}, 
+        Model_num: {self.model_num},  # Fix the typo here as well
         Series: {self.series},
         Release date: {self.release_date}, 
-        Notes: {self.notes} ''' 
+        Notes: {self.notes} '''
+
     
 class User(db.Model, SerializerMixin, UserMixin):
     __tablename__ = 'users'
@@ -66,7 +67,7 @@ class User(db.Model, SerializerMixin, UserMixin):
 
     #relationships
     collection = db.relationship('Collection', back_populates = 'user')
-    wishlist = db.relationship('Wishlist', back_poplates= 'user')
+    wishlist = db.relationship('Wishlist', back_populates= 'user')
 
     #serialization
     serialize_rules = ('-collections.user', '-wishlist.user')
