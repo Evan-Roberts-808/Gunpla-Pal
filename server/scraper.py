@@ -58,9 +58,9 @@ class Scraper:
         # Replace spaces with underscores
         model_number = model_number.replace(' ', '_')
         model_name = model_name.replace(' ', '_')
-        series = ''
+
         # Encode the filename for URL
-        filename = f"HGM{series}-{model_number}{model_name}.jpg"
+        filename = f"HGM-{model_number}{model_name}.jpg"
         encoded_filename = urllib.parse.quote(filename)
 
         filepath = os.path.join(self.script_directory,
@@ -124,7 +124,7 @@ class Scraper:
                             except AttributeError:
                                 model_name = None
 
-                            if self.start_from_checkpoint and (model_number != self.last_scraped_model_number or model_name != self.last_scraped_model):
+                            if self.start_from_checkpoint and (model_number != self.last_scraped_model_number and model_name != self.last_scraped_model):
                                 continue
                             else:
                                 self.start_from_checkpoint = False  # Clear the checkpoint
