@@ -60,6 +60,7 @@ if __name__ == "__main__":
     with app.app_context():
         # create_backup()
         # view_pickle_structure('gunpla_backup.pkl')
-        # restore_backup('gunpla_backup.pkl')
+        clear_tables()
+        restore_backup('gunpla_backup.pkl')
         # ipdb.set_trace()
         pass
