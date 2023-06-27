@@ -1,7 +1,5 @@
 import React from 'react'
-import Container from 'react-bootstrap/Container'
-import Nav from 'react-bootstrap/Nav'
-import Navbar from 'react-bootstrap/Navbar'
+import {Nav, Navbar, Container} from 'react-bootstrap'
 import {Link} from 'react-router-dom'
 
 function Header({darkMode, updateDarkMode}) {
@@ -13,9 +11,9 @@ function Header({darkMode, updateDarkMode}) {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="custom-header justify-content-end" style={{width: "100%"}}>
-            <Navbar.Link as={Link} to='database' className={darkMode ? 'dark-link' : 'light-link'}>Database</Navbar.Link>
-            <Navbar.Link as={Link} to='signup' className={darkMode ? 'dark-link' : 'light-link'}>Sign Up</Navbar.Link>
-            <Navbar.Link as={Link} to='login' className={darkMode ? 'dark-link' : 'light-link'}>Login</Navbar.Link>
+            <Nav.Link as={Link} to='/'>Database</Nav.Link>
+            <Nav.Link as={Link} to='signup' className={darkMode ? 'dark-link' : 'light-link'}>Sign Up</Nav.Link>
+            <Nav.Link as={Link} to='login' className={darkMode ? 'dark-link' : 'light-link'}>Login</Nav.Link>
             <div id="toggle" onClick={updateDarkMode} className={darkMode ? 'active' : ""}>
               <i className="indicator"></i>
             </div>

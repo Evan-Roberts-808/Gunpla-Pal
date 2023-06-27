@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import Button from 'react-bootstrap/Button'
-import { Switch, Route, Routes } from "react-router-dom"
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import "bootstrap/dist/css/bootstrap.css";
 import './stylesheets/styles.css'
 import Header from './components/Header.jsx'
@@ -16,16 +15,18 @@ function App() {
   const [darkMode, setDarkMode] = useState(false)
   return (
     <div className={`App ${darkMode ? 'DarkMode' : 'LightMode'}`}>
-      <Header darkMode={darkMode} updateDarkMode={() => setDarkMode((prev) => !prev)}/>
+    <Router>
+    <Header darkMode={darkMode} updateDarkMode={() => setDarkMode((prev) => !prev)}/>
       <Routes>
-        <Route path = '/' elements={<Home />}/>
+        <Route path='/' index element={<Home />}/>
         <Route path='/database' element={<Database />}/>
-        <Route path='/database/<string:grade>' element={<DatabaseByGrade />}/>
+        <Route path='/database/:grade' element={<DatabaseByGrade />}/>
         <Route path ='/profile' element = {<Profile/>} />
-        <Route path = '/login' elements = {<SignIn />}/>
-        <Route path = '/signUp' elements = {<SignUp />}/>
+        <Route path = '/login' element = {<SignIn />}/>
+        <Route path = '/signUp' element = {<SignUp />}/>
       </Routes>
       <Footer />
+    </Router>
     </div>
   )
 }
