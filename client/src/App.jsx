@@ -13,17 +13,42 @@ import Profile from './components/pages/Profile.jsx'
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    fetch("/api/check_session")
+      .then(response => {
+        if (response.ok) {
+          response.json().then(user => {
+            setUser(user)
+          })
+        }
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }, [])
+
+  const updateUser = (userData) => {
+    setUser(userData)
+  }
+
+  function onLogout(loggedOut) {
+    setUser(loggedOut)
+  }
+
+
   return (
     <div className={`App ${darkMode ? 'DarkMode' : 'LightMode'}`}>
     <Router>
-    <Header darkMode={darkMode} updateDarkMode={() => setDarkMode((prev) => !prev)}/>
+    <Header darkMode={darkMode} updateDarkMode={() => setDarkMode((prev) => !prev)} user={user} onLogout={onLogout}/>
       <Routes>
         <Route path='/' index element={<Home />}/>
         <Route path='/database' element={<Database />}/>
         <Route path='/database/:grade' element={<DatabaseByGrade />}/>
         <Route path ='/profile' element = {<Profile/>} />
-        <Route path = '/login' element = {<SignIn />}/>
-        <Route path = '/signUp' element = {<SignUp />}/>
+        <Route path = '/login' element = {<SignIn setUser={updateUser}/>}/>
+        <Route path = '/signUp' element = {<SignUp setUser={updateUser}/>}/>
       </Routes>
       <Footer />
     </Router>
