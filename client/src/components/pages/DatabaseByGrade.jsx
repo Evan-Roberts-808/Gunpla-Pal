@@ -5,19 +5,17 @@ const DatabaseByGrade = () => {
   const { grade } = useParams();
   const [gunplas, setGunplas] = useState([])
 
-  useEffect(() => {
-    const fetchGunplasByGrade = async () => {
-      try {
-        const response = await fetch(`/api/gunplas/${grade}`) // CHANGE THIS
-        const data = await response.json();
-        setGunplas(data)
-      } catch (error) {
-        console.error('Error fetching gunplas by grade:', error)
-      }
-    };
+  console.log(grade)
 
-    fetchGunplasByGrade()
+  useEffect(() => {
+    fetch(`/api/gunplas/${grade}`)
+    .then((response) => response.json())
+    .then((data) => console.log(data))
+    .catch((error) => {
+      console.log(error)
+    });
   }, [grade])
+  
 
   return (
     <div>
