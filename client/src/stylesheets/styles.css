@@ -2,13 +2,18 @@
 
 :root {
     --light-mode: #EFEFEF;
-    --dark-mode: #D9D9D9;
+    --dark-mode: #121212;
 }
 
 /* General */
 
 * {
     font-family: 'Roboto Mono', monospace;
+}
+
+.App {
+    height: 100vh;
+    width: 100vw;
 }
 
 .LightMode {
@@ -23,6 +28,10 @@
 }
 
 /* Nav */
+
+.logo {
+    width: 50%;
+}
 
 .navbar-nav {
     display: flex;
@@ -76,4 +85,18 @@
 #toggle.active .indicator {
     transform: translateX(18px);
     background: linear-gradient(to bottom, #444, #222);
+}
+
+/* Home */
+
+.jumbotron {
+    width: 100%;
+    height: 60vh;
+    background-image: url('https://raw.githubusercontent.com/Evan-Roberts-808/Gunpla-Pal/b81929fca4087d492f6bd19531e83f5a1aefe30c/.github/images/general/Jumbotron.png');
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
 }
