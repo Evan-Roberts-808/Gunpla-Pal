@@ -6,6 +6,7 @@ from config import app, db, api, Resource
 from models import Gunpla, User, Collection, Wishlist, Theme
 
 
+
 migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
