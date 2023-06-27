@@ -1,5 +1,5 @@
 from flask_migrate import Migrate
-from flask import Flask, request, session
+from flask import Flask, request, session, make_response, jsonify   
 from flask_login import LoginManager, login_user, logout_user, login_required
 from config import app, db, api, Resource
 # from config import Config, app, db, api, Resource
