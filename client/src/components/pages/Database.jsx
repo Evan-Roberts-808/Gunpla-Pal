@@ -5,20 +5,6 @@ import { Row, Col, Card } from "react-bootstrap";
 const Database = () => {
   const [gunplas, setGunplas] = useState([]);
 
-  // useEffect(() => {
-  //   const fetchGunplas = async () => {
-  //     try {
-  //       const response = await fetch('/api/gunplas'); // CHANGE THIS
-  //       const data = await response.json();
-  //       setGunplas(data);
-  //     } catch (error) {
-  //       console.error('Error fetching gunplas:', error);
-  //     }
-  //   };
-
-  //   fetchGunplas();
-  // }, []);
-
   return (
     <div>
       <h2>Gunpla Database</h2>
