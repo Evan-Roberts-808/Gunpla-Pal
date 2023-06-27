@@ -19,6 +19,7 @@ selenium = "*"
 honcho = "*"
 gunicorn = "*"
 flask-login = "*"
+flask-bcrypt = "*"
 
 [dev-packages]
 
