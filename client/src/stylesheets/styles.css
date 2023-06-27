@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,400;0,500;0,700;1,400;1,500&display=swap');
+
+:root {
+    --light-mode: #EFEFEF;
+    --dark-mode: #D9D9D9;
+}
+
+/* General */
+
+* {
+    font-family: 'Roboto Mono', monospace;
+}
+
+.LightMode {
+    background-color: var(--light-mode);
+    transition: 0.5s;
+}
+
+.DarkMode {
+    background-color: var(--dark-mode);
+    transition: 0.5s;
+    color: var(--light-mode);
+}
+
+/* Nav */
+
+.navbar-nav {
+    display: flex;
+    align-items: center;
+}
+
+.dark-link {
+    color: white;
+}
+
+.light-link {
+    color: black;
+}
+
+#toggle {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 20px;
+    border-radius: 10px;
+    background: #fff;
+    transition: 0.5s;
+    cursor: pointer;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
+                inset 0 4px 4px rgba(255, 255, 255, 0.2),
+                inset 0 -4px 4px rgba(255, 255, 255, 0.2);
+}
+
+#toggle.active {
+    background: #222;
+    box-shadow: inset 0 8px 60px rgba(0, 0, 0, 0.1),
+                inset 0 8px 8px rgba(0, 0, 0, 0.1),
+                inset 0 -4px 4px rgba(0, 0, 0, 0.1);
+    transition: 0.5s;
+}
+
+#toggle .indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(to bottom, #eaeaea, #f9f9f9);
+    border-radius: 8px;
+    transform: translateX(0);
+    transition: 0.5s;
+}
+
+#toggle.active .indicator {
+    transform: translateX(18px);
+    background: linear-gradient(to bottom, #444, #222);
+}
