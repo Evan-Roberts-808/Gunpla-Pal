@@ -10,11 +10,11 @@ from flask_login import UserMixin, LoginManager
 from config import db
 
 convention = {
-    "ix": "ix_%(column_0_label)s",
+    "ix": 'ix_%(column_0_label)s',
     "uq": "uq_%(table_name)s_%(column_0_name)s",
     "ck": "ck_%(table_name)s_%(constraint_name)s",
     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-    "pk": "pk_%(table_name)s",
+    "pk": "pk_%(table_name)s"
 }
 
 metadata = MetaData(naming_convention=convention)
@@ -51,7 +51,7 @@ class User(db.Model, SerializerMixin, UserMixin):
 
     # columns
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String)
+    username = db.Column(db.String, unique=True)
     _password_hash = db.Column(db.String)
     name = db.Column(db.String)
     email = db.Column(db.String)
