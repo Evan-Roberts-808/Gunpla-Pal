@@ -6,24 +6,52 @@ const Profile = () => {
   const { user } = useContext(UserContext)
   const [viewWishlist, setViewWishlist] = useState(false)
   const [userDetails, setUserDetails] = useState([])
+  const [userWishlists, setUserWishlists] = useState([])
+
+
   console.log(user)
   useEffect(() => {
     if (user) {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
-          console.log(data);
+          console.log(data)
           setUserDetails(data); // Assuming the response data is in the correct format
         })
         .catch((error) => console.log(error));
     }
   }, [user]);
 
+  useEffect(() => {
+    if (user) {
+      fetch(`/api/${user.username}/wishlists`)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data)
+        setUserWishlists(data)
+      })
+      .catch((error) => console.log(error))
+    }
+  }, [user])
+
+  // console.log(userWishlists)
   // console.log(userDetails)
 
   function switchView(){
     setViewWishlist(prev => !prev)
   }
+
+const handleCollectionDelete = (gunpla_id) => {
+  fetch("/api/collections/remove", {
+    method: "DELETE",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      "gunpla_id": gunpla_id
+    })
+  })
+}
 
   const renderCollections = () => {
     if (!userDetails || userDetails.length === 0) {
@@ -42,6 +70,7 @@ const Profile = () => {
               <Card.Text>{collection.gunpla?.series}</Card.Text>
               <Card.Text>{collection.gunpla?.release_date}</Card.Text>
               <Card.Text>{collection.gunpla?.notes}</Card.Text>
+              <button onClick={() => handleCollectionDelete(collection.gunpla.id)}>Delete</button>
             </Card.Body>
           </Card>
         </Col>
@@ -49,6 +78,33 @@ const Profile = () => {
       </Row>
     );
   };
+
+  const renderWishlists = () => {
+    if (!userWishlists || userWishlists.length === 0) {
+      return <p>No wishlists found. </p>
+    }
+
+    return (
+      <Row>
+        {userWishlists.map((wishlist) => (
+          <Col sm={2} key={wishlist.id}>
+          <Card>
+            <Card.Img variant="top" src={wishlist.gunpla?.model_img} />
+            <Card.Body>
+              <Card.Title>{wishlist.gunpla?.model_num}</Card.Title>
+              <Card.Text>{wishlist.gunpla?.model}</Card.Text>
+              <Card.Text>{wishlist.gunpla?.series}</Card.Text>
+              <Card.Text>{wishlist.gunpla?.release_date}</Card.Text>
+              <Card.Text>{wishlist.gunpla?.notes}</Card.Text>
+              <button>Delete</button>
+            </Card.Body>
+          </Card>
+        </Col>
+        ))}
+      </Row>
+    )
+  }
+
 
   return (
     <Container>
@@ -71,6 +127,7 @@ const Profile = () => {
         </Row>
         <hr/>
         <div>{renderCollections()}</div>
+        <div>{renderWishlists()}</div>
         </>
       ) : (
         <p>Loading...</p>

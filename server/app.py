@@ -116,11 +116,38 @@ def remove_from_collection():
     # user_id = data.get('user_id')
     user = current_user
 
-    collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
-    db.session.delete(collection)
-    db.session.commit()
-    return {"message": "removed collection"}, 201
+    collection = Collection.query.filter_by(user_id=user.id, gunpla_id=gunpla_id).first()
+    if collection:
+        db.session.delete(collection)
+        db.session.commit()
+        return {"message": "removed collection"}, 201
+    else:
+        return {"error": "not found"}, 404
 
+    # db.session.delete(collection)
+    # db.session.commit()
+    # return {"message": "removed collection"}, 201
+
+
+# class WishlistsByUser(Resource):
+#     @login_required
+#     def get(self, username):
+#         try:
+#             user = User.query.filter(User.username == username).first()
+#             if user:
+#                 user_data = user.to_dict()
+#                 wishlists = [
+#                     {
+#                         **w.to_dict(),
+#                         'gunpla': w.gunpla.to_dict()  # Include the Gunpla details
+#                     }
+#                     for w in user.wishlists
+#                 ]
+#                 user_data['wishlists'] = wishlists
+#                 return user_data, 200
+#             return {'error': 'user not found'}, 404
+#         except:
+#             return {'error': 'user not found'}, 404
 
 class WishlistsByUser(Resource):
     @login_required
@@ -128,16 +155,13 @@ class WishlistsByUser(Resource):
         try:
             user = User.query.filter(User.username == username).first()
             if user:
-                user_data = user.to_dict()
-                wishlists = [
-                    {
-                        **w.to_dict(),
-                        'gunpla': w.gunpla.to_dict()  # Include the Gunpla details
-                    }
-                    for w in user.wishlists
-                ]
-                user_data['wishlists'] = wishlists
-                return user_data, 200
+                wishlists = []
+                for wishlist in user.wishlists:
+                    wishlist_data = wishlist.to_dict()
+                    gunpla = wishlist.gunpla.to_dict()
+                    wishlist_data['gunpla'] = gunpla
+                    wishlists.append(wishlist_data)
+                return wishlists, 200
             return {'error': 'user not found'}, 404
         except:
             return {'error': 'user not found'}, 404
