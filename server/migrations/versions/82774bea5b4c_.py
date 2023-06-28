@@ -1,8 +1,8 @@
-"""models updated
+"""empty message
 
-Revision ID: 7e5aede1e25f
+Revision ID: 82774bea5b4c
 Revises: 
-Create Date: 2023-06-26 14:35:14.020915
+Create Date: 2023-06-28 16:23:44.872183
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7e5aede1e25f'
+revision = '82774bea5b4c'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -43,10 +43,12 @@ def upgrade():
     sa.Column('email', sa.String(), nullable=True),
     sa.Column('theme_id', sa.Integer(), nullable=True),
     sa.Column('profile_pic', sa.String(), nullable=True),
+    sa.Column('bio', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['theme_id'], ['themes.id'], name=op.f('fk_users_theme_id_themes')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_users')),
+    sa.UniqueConstraint('email', name=op.f('uq_users_email')),
     sa.UniqueConstraint('username', name=op.f('uq_users_username'))
     )
     op.create_table('collections',

@@ -3,6 +3,7 @@ from flask import Flask, request, session, make_response, jsonify, redirect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from config import app, db, api, Resource
 from models import Gunpla, User, Collection, Wishlist, Theme
+import ipdb
 
 
 migrate = Migrate(app, db)
@@ -40,6 +41,22 @@ class UserProfile(Resource):
 
 
 api.add_resource(UserProfile, '/users/<string:username>')
+
+class UserBio(Resource):
+    @login_required
+    def patch(self, username):
+        data = request.get_json()
+        try:
+            user = User.query.filter(User.username == username).first()
+            for attr in data:
+                setattr(user, attr, data.get(attr))
+            db.session.add(user)
+            db.session.commit()
+            return {user.to_dict(), 200}
+        except:
+            return {'error' : 'could not update bio'}
+        
+api.add_resource(UserBio, '/users/<string:username>/bio')
 
 
 class CollectionsByUser(Resource):

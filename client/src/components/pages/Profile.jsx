@@ -1,14 +1,38 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Row, Col, Container, Image, Card } from 'react-bootstrap'
 import { UserContext }  from '../../context/UserContext';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const { user } = useContext(UserContext)
   const [viewWishlist, setViewWishlist] = useState(false)
   const [userDetails, setUserDetails] = useState([])
   const [userWishlists, setUserWishlists] = useState([])
+  const [edit, setEdit] = useState(false)
+  const navigate = useNavigate();
 
 
+  const initialValues = {
+    bio: ""
+  };
+
+  const validationSchema = Yup.object({
+    bio: Yup.string().required("Please fill out your bio")
+});
+
+const handleSubmit = (values) => {
+  console.log(values)
+  fetch(`/api/users/${user.username}/bio`, {
+    method: "PATCH",
+    headers: {'Content-type' : 'application/json'},
+    body: JSON.stringify(values)
+  })
+  .then(resp => resp.json())
+  handleEditSwitch()
+  }
+  
   // console.log(user)
   useEffect(() => {
     if (user) {
@@ -41,6 +65,11 @@ const Profile = () => {
     setViewWishlist(prev => !prev)
   }
 
+  function handleEditSwitch(){
+    setEdit(prevEdit => !prevEdit)
+  }
+
+  
 
 const handleCollectionDelete = (gunpla_id) => {
   fetch("/api/collections/remove", {
@@ -139,6 +168,19 @@ const handleCollectionDelete = (gunpla_id) => {
           <h2>User Profile: {user.username}</h2>
           <p>Name: {user.name}</p>
           <p>Email: {user.email}</p>
+          {!edit ? 
+          <p>Bio: {user.bio}<button onClick={()=>handleEditSwitch()}>Edit Bio</button></p> 
+            : 
+          <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+          <Form>
+            <div>
+          <Field type="text" name="bio" id="bio" />
+          <ErrorMessage name="bio" component="div" />
+            </div> 
+              <button type='submit'>Submit
+              </button>
+            </Form>
+            </Formik>}
           </Col>
         </Row>
         <hr />
