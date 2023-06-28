@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { UserContext }  from '../../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 import {Row, Col, Container} from 'react-bootstrap'
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 
-const Signup = () => {
+const SignIn = ({updateUser}) => {
+  const {setUser} = useContext(UserContext)
+  const navigate = useNavigate()
 
   const initialValues = {
     username: '',
@@ -33,7 +37,8 @@ const handleSubmit = (values) => {
     .then(response => response.json())
     .then(data => {
       // Handle the response from the server
-      console.log(data);
+      setUser(data);
+      navigate('/database')
     })
     .catch(error => console.error(error));
 };
@@ -68,5 +73,5 @@ const handleSubmit = (values) => {
   )
 }
 
-export default Signup;
+export default SignIn;
 

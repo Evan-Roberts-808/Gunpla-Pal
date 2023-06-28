@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
-import {Row, Col, Container} from 'react-bootstrap'
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Row, Col, Container } from 'react-bootstrap';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { UserContext } from '../../context/UserContext';
 
-const Signup = () => {
+const Signup = ({ updateUser }) => {
+  const {setUser} = useContext(UserContext); // Updated: useContext to get setUser
+  const navigate = useNavigate();
 
   const defaultProfilePics = [
     'https://raw.githubusercontent.com/Evan-Roberts-808/Gunpla-Pal/main/.github/images/profile_pics/Amuro.png',
@@ -12,7 +16,7 @@ const Signup = () => {
     'https://raw.githubusercontent.com/Evan-Roberts-808/Gunpla-Pal/main/.github/images/profile_pics/RX78.png',
     'https://raw.githubusercontent.com/Evan-Roberts-808/Gunpla-Pal/main/.github/images/profile_pics/Sayla.png',
     'https://raw.githubusercontent.com/Evan-Roberts-808/Gunpla-Pal/main/.github/images/profile_pics/Suletta.png'
-  ]
+  ];
 
   const initialValues = {
     username: '',
@@ -20,41 +24,37 @@ const Signup = () => {
     confirmPassword: '',
   };
 
-  
   const validationSchema = Yup.object({
     username: Yup.string().required('Username is required'),
     password: Yup.string().required('Password is required'),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password'), null], 'Passwords must match')
-    .required('Confirm Password is required'),
-});
+      .required('Confirm Password is required'),
+  });
 
+  const handleSubmit = (values) => {
+    const randomIndex = Math.floor(Math.random() * defaultProfilePics.length);
+    const profilePic = defaultProfilePics[randomIndex];
 
-const handleSubmit = (values) => {
+    const userData = {
+      ...values,
+      profile_pic: profilePic
+    };
 
-  const randomIndex = Math.floor(Math.random() * defaultProfilePics.length)
-  const profilePic = defaultProfilePics[randomIndex]
-
-  const userData = {
-    ...values,
-    profile_pic: profilePic
-  }
-
-  // Send a POST request to create the user in the database
-  fetch('/api/signup', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(userData)
-  })
-    .then(response => response.json())
-    .then(data => {
-      // Handle the response from the server
-      console.log(data);
+    fetch('/api/signup', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(userData)
     })
-    .catch(error => console.error(error));
-};
+      .then(response => response.json())
+      .then(data => {
+        setUser(data); // Updated: Use setUser to update user data
+        navigate('/database');
+      })
+      .catch(error => console.error(error));
+  };
 
 
   return (
