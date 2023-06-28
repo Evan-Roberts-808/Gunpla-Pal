@@ -10,16 +10,6 @@ from flask_login import UserMixin, LoginManager
 
 from config import db, bcrypt
 
-# convention = {
-#     "ix": "ix_%(column_0_label)s",
-#     "uq": "uq_%(table_name)s_%(column_0_name)s",
-#     "ck": "ck_%(table_name)s_%(constraint_name)s",
-#     "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-#     "pk": "pk_%(table_name)s",
-# }
-
-# metadata = MetaData(naming_convention=convention)
-
 ################## Models Below####################
 
 
@@ -42,7 +32,7 @@ class Gunpla(db.Model, SerializerMixin):
     wishlists = db.relationship('Wishlist', back_populates='gunpla')
 
     # serialize rules
-    serialize_rules = ('-collections.gunpla', '-wishlists.gunpla')
+    serialize_rules = ('-collections', '-wishlists')
 
     # representation
 
@@ -63,13 +53,15 @@ class User(db.Model, SerializerMixin, UserMixin):
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     # relationships
-    collections = db.relationship('Collection', back_populates='user')
-    wishlists = db.relationship('Wishlist', back_populates='user')
+    collections = db.relationship(
+        'Collection', back_populates='user', cascade="all, delete-orphan")
+    wishlists = db.relationship(
+        'Wishlist', back_populates='user', cascade="all, delete-orphan")
 
     # serialization
     serialize_rules = ('-collections.user', '-wishlists.user')
 
-    #password hashing
+    # password hashing
     @hybrid_property
     def password_hash(self):
         raise Exception('Password hashes may not be viewed.')
@@ -107,7 +99,7 @@ class Collection(db.Model, SerializerMixin):
     gunpla = db.relationship('Gunpla', back_populates='collections')
 
     # serialization
-    serialize_rules = ('-user.collections', '-gunpla.collections')
+    serialize_rules = ('-user', '-gunpla')
 
     # representation
     def __repr__(self):
@@ -131,7 +123,7 @@ class Wishlist(db.Model, SerializerMixin):
     gunpla = db.relationship('Gunpla', back_populates='wishlists')
 
     # serialization rules
-    serialize_rules = ('-user.wishlists', '-gunpla.wishlists')
+    serialize_rules = ('-user', '-gunpla')
 
     # representation
     def __repr__(self):

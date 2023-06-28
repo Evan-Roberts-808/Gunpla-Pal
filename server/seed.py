@@ -14,6 +14,7 @@ def clear_tables():
     db.session.query(Wishlist).delete()
     db.session.commit()
 
+
 def create_backup():
     gunpla_list = []
 
@@ -25,17 +26,19 @@ def create_backup():
     with open('gunpla_backup.pkl', 'wb') as f:
         pickle.dump(gunpla_list, f)
 
+
 def view_pickle_structure(filename):
     with open(filename, 'rb') as f:
         data = pickle.load(f)
-    
+
     # Print the structure of the data
     print(data)
+
 
 def restore_backup(filename):
     with open(filename, 'rb') as f:
         gunpla_list = pickle.load(f)
-    
+
     # Clear the Gunpla table
     db.session.query(Gunpla).delete()
     db.session.commit()
@@ -53,14 +56,15 @@ def restore_backup(filename):
             notes=gunpla_data.notes
         )
         db.session.add(gunpla)
-    
+
     db.session.commit()
+
 
 if __name__ == "__main__":
     with app.app_context():
         # create_backup()
         # view_pickle_structure('gunpla_backup.pkl')
-        clear_tables()
-        restore_backup('gunpla_backup.pkl')
+        # clear_tables()
+        # restore_backup('gunpla_backup.pkl')
         # ipdb.set_trace()
         pass

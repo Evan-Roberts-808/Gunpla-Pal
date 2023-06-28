@@ -137,6 +137,44 @@ function renderPageNumbers() {
       });
   }, [grade]);
 
+  const addToCollection = (gunpla_id) => {
+    fetch("/api/collections/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Added to collection", data)
+    })
+    .catch((error) => {
+      console.error("Error adding to collection", error)
+    })
+  }
+
+  const addToWishlist = (gunpla_id) => {
+    fetch("/api/wishlist/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Added to wishlist", data)
+    })
+    .catch((error) => {
+      console.error("Error adding to wishlist", error)
+    })
+  }
+
   const gunplaDisplay = currentGunplas.map((gunpla) => {
     return (
       <Card className="col-sm-2" key={gunpla.id}>
@@ -147,8 +185,8 @@ function renderPageNumbers() {
           <Card.Text>{gunpla.series}</Card.Text>
           <Card.Text>{gunpla.release_date}</Card.Text>
           <Card.Text>{gunpla.notes}</Card.Text>
-          <button>Add to collection</button>
-          <button>Add to wishlist</button>
+          <button onClick={() => addToCollection(gunpla.id)}>Add to collection</button>
+          <button onClick={() => addToWishlist(gunpla.id)}>Add to wishlist</button>
         </Card.Body>
       </Card>
     );

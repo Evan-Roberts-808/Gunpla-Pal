@@ -2,7 +2,6 @@ from flask_migrate import Migrate
 from flask import Flask, request, session, make_response, jsonify, redirect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from config import app, db, api, Resource
-# from config import Config, app, db, api, Resource
 from models import Gunpla, User, Collection, Wishlist, Theme
 
 
@@ -47,9 +46,16 @@ class CollectionsByUser(Resource):
     @login_required
     def get(self, username):
         try:
-            collections = [c.to_dict() for c in Collection.query.filter(
-                Collection.user.username == username).all()]
-            return collections, 200
+            user = User.query.filter(User.username == username).first()
+            if user:
+                collections = []
+                for collection in user.collections:
+                    collection_data = collection.to_dict()
+                    gunpla = collection.gunpla.to_dict()
+                    collection_data['gunpla'] = gunpla
+                    collections.append(collection_data)
+                return collections, 200
+            return {'error': 'user not found'}, 404
         except:
             return {'error': 'user not found'}, 404
 
@@ -59,55 +65,142 @@ api.add_resource(CollectionsByUser, '/<string:username>/collections')
 # user profile route '/<string:username>
 
 
-class CollectionsByID(Resource):
-    @login_required
-    def get(self, collection_id):
-        try:
-            collection = Collection.query.get(collection_id)
-            if collection and collection.user == current_user:
-                return collection.to_dict(), 200
-            return {'error': 'collection not found'}, 404
-        except:
-            return {'error': 'collection not found'}, 404
-
-    @login_required
-    def delete(self, collection_id):
-        try:
-            collection = Collection.query.get(collection_id)
-            if collection and collection.user == current_user:
-                db.session.delete(collection)
-                db.session.commit()
-                return {'message': 'collection deleted successfully'}, 200
-            return {'error': 'collection not found'}, 404
-        except:
-            return {'error': 'collection not found'}, 404
-
-
-api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
-
-
-# class GunPlaByID(Resource):
+# class CollectionsByID(Resource):
 #     @login_required
-#     def post(self, collection_id, gunpla_id):
+#     def get(self, collection_id):
 #         try:
 #             collection = Collection.query.get(collection_id)
-#             gunpla = Gunpla.query.get(gunpla_id)
+#             if collection and collection.user == current_user:
+#                 return collection.to_dict(), 200
+#             return {'error': 'collection not found'}, 404
+#         except:
+#             return {'error': 'collection not found'}, 404
 
-# api.add_resource(GunPlaByID, '/')
+#     @login_required
+#     def delete(self, collection_id):
+#         try:
+#             collection = Collection.query.get(collection_id)
+#             if collection and collection.user == current_user:
+#                 db.session.delete(collection)
+#                 db.session.commit()
+#                 return {'message': 'collection deleted successfully'}, 200
+#             return {'error': 'collection not found'}, 404
+#         except:
+#             return {'error': 'collection not found'}, 404
 
+
+# api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
+
+
+@app.route("/collections/add", methods=["POST"])
+@login_required
+def add_to_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
+    db.session.add(collection)
+    db.session.commit()
+    return {"message": "added to collection"}, 201
+
+
+@app.route("/collections/remove", methods=["DELETE"])
+@login_required
+def remove_from_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    collection = Collection.query.filter_by(user_id=user.id, gunpla_id=gunpla_id).first()
+    if collection:
+        db.session.delete(collection)
+        db.session.commit()
+        return {"message": "removed collection"}, 201
+    else:
+        return {"error": "not found"}, 404
+
+    # db.session.delete(collection)
+    # db.session.commit()
+    # return {"message": "removed collection"}, 201
+
+
+# class WishlistsByUser(Resource):
+#     @login_required
+#     def get(self, username):
+#         try:
+#             user = User.query.filter(User.username == username).first()
+#             if user:
+#                 user_data = user.to_dict()
+#                 wishlists = [
+#                     {
+#                         **w.to_dict(),
+#                         'gunpla': w.gunpla.to_dict()  # Include the Gunpla details
+#                     }
+#                     for w in user.wishlists
+#                 ]
+#                 user_data['wishlists'] = wishlists
+#                 return user_data, 200
+#             return {'error': 'user not found'}, 404
+#         except:
+#             return {'error': 'user not found'}, 404
 
 class WishlistsByUser(Resource):
     @login_required
     def get(self, username):
         try:
-            wishlists = [c.to_dict() for c in Wishlist.query.filter(
-                Wishlist.user.username == username).all()]
-            return wishlists, 200
+            user = User.query.filter(User.username == username).first()
+            if user:
+                wishlists = []
+                for wishlist in user.wishlists:
+                    wishlist_data = wishlist.to_dict()
+                    gunpla = wishlist.gunpla.to_dict()
+                    wishlist_data['gunpla'] = gunpla
+                    wishlists.append(wishlist_data)
+                return wishlists, 200
+            return {'error': 'user not found'}, 404
         except:
             return {'error': 'user not found'}, 404
 
 
 api.add_resource(WishlistsByUser, '/<string:username>/wishlists')
+
+
+@app.route("/wishlist/add", methods=["POST"])
+@login_required
+def add_to_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
+    db.session.add(wishlist)
+    db.session.commit()
+    return {"message": "added to wishlist"}, 201
+
+
+@app.route("/wishlist/remove", methods=["DELETE"])
+@login_required
+def remove_from_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    wishlist = Wishlist.query.filter_by(user_id=user.id, gunpla_id=gunpla_id).first()
+    if wishlist:
+        db.session.delete(wishlist)
+        db.session.commit()
+        return {"message": "removed wishlist"}, 201
+    else:
+        return {"error": "skill issue"}, 404
 
 
 class Signup(Resource):
