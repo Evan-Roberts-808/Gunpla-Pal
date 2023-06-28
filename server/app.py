@@ -194,10 +194,13 @@ def remove_from_wishlist():
     # user_id = data.get('user_id')
     user = current_user
 
-    wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
-    db.session.delete(wishlist)
-    db.session.commit()
-    return {"message": "removed wishlist"}, 201
+    wishlist = Wishlist.query.filter_by(user_id=user.id, gunpla_id=gunpla_id).first()
+    if wishlist:
+        db.session.delete(wishlist)
+        db.session.commit()
+        return {"message": "removed wishlist"}, 201
+    else:
+        return {"error": "skill issue"}, 404
 
 
 class Signup(Resource):

@@ -84,6 +84,22 @@ const handleCollectionDelete = (gunpla_id) => {
     );
   };
 
+  const handleWishlistDelete = (gunpla_id) => {
+    fetch("/api/wishlist/remove", {
+      method: "DELETE",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "gunpla_id": gunpla_id
+      })
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserWishlists((prevState) => (prevState.filter((wishlist)=> wishlist.gunpla.id !== gunpla_id)))
+    })
+  }
+
   const renderWishlists = () => {
     if (!userWishlists || userWishlists.length === 0) {
       return <p>No wishlists found. </p>
@@ -101,7 +117,7 @@ const handleCollectionDelete = (gunpla_id) => {
               <Card.Text>{wishlist.gunpla?.series}</Card.Text>
               <Card.Text>{wishlist.gunpla?.release_date}</Card.Text>
               <Card.Text>{wishlist.gunpla?.notes}</Card.Text>
-              <button>Delete</button>
+              <button onClick={() => handleWishlistDelete(wishlist.gunpla.id)}>Delete</button>
             </Card.Body>
           </Card>
         </Col>
