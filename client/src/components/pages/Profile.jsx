@@ -5,40 +5,50 @@ import { UserContext }  from '../../context/UserContext';
 const Profile = () => {
   const { user } = useContext(UserContext)
   const [viewWishlist, setViewWishlist] = useState(false)
-  const [userDetails, setUserDetails] = useState({ collections: [] })
-
+  const [userDetails, setUserDetails] = useState([])
+  console.log(user)
   useEffect(() => {
-
     if (user) {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
-        .then((data) => setUserDetails(data))
+        .then((data) => {
+          console.log(data);
+          setUserDetails(data); // Assuming the response data is in the correct format
+        })
         .catch((error) => console.log(error));
     }
   }, [user]);
 
-  console.log(userDetails)
+  // console.log(userDetails)
 
   function switchView(){
     setViewWishlist(prev => !prev)
   }
 
-  const collectionDisplay = userDetails.map((gunpla) => {
+  const renderCollections = () => {
+    if (!userDetails || userDetails.length === 0) {
+      return <p>No collections found.</p>;
+    }
+  
     return (
-      <Card className="col-sm-2" key={gunpla.id}>
-        <Card.Img src={gunpla.gunpla.model_img} />
-        <Card.Body>
-          <Card.Text>{gunpla.gunpla.model_num}</Card.Text>
-          <Card.Text>{gunpla.gunpla.model}</Card.Text>
-          <Card.Text>{gunpla.gunpla.series}</Card.Text>
-          <Card.Text>{gunpla.gunpla.release_date}</Card.Text>
-          <Card.Text>{gunpla.gunpla.notes}</Card.Text>
-          {/* <button onClick={() => addToCollection(gunpla.id)}>Add to collection</button>
-          <button onClick={() => addToWishlist(gunpla.id)}>Add to wishlist</button> */}
-        </Card.Body>
-      </Card>
+      <Row>
+        {userDetails.map((collection) => (
+          <Col sm={2} key={collection.id}>
+          <Card>
+            <Card.Img variant="top" src={collection.gunpla?.model_img} />
+            <Card.Body>
+              <Card.Title>{collection.gunpla?.model_num}</Card.Title>
+              <Card.Text>{collection.gunpla?.model}</Card.Text>
+              <Card.Text>{collection.gunpla?.series}</Card.Text>
+              <Card.Text>{collection.gunpla?.release_date}</Card.Text>
+              <Card.Text>{collection.gunpla?.notes}</Card.Text>
+            </Card.Body>
+          </Card>
+        </Col>
+        ))}
+      </Row>
     );
-  });
+  };
 
   return (
     <Container>
@@ -60,7 +70,7 @@ const Profile = () => {
         <h2 onClick={() => switchView()}>Wishlist</h2>
         </Row>
         <hr/>
-        {collectionDisplay}
+        <div>{renderCollections()}</div>
         </>
       ) : (
         <p>Loading...</p>
