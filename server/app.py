@@ -10,7 +10,6 @@ migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
-api = Api(app)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -82,7 +81,7 @@ class CollectionsByID(Resource):
             return {'error': 'collection not found'}, 404
         except:
             return {'error': 'collection not found'}, 404
-        
+
 
 api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
 
@@ -94,7 +93,7 @@ api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
 #             collection = Collection.query.get(collection_id)
 #             gunpla = Gunpla.query.get(gunpla_id)
 
-# api.add_resource(GunPlaByID, '/')    
+# api.add_resource(GunPlaByID, '/')
 
 
 class WishlistsByUser(Resource):
@@ -124,7 +123,7 @@ class Signup(Resource):
         db.session.add(new_user)
         db.session.commit()
 
-        #session['user_id'] = new_user.id
+        # session['user_id'] = new_user.id
         login_user(new_user, remember=True)
 
         return new_user.to_dict(), 201
@@ -169,10 +168,6 @@ def logout():
     logout_user()
     # return redirect(url_for('login'))
     return f'You have logged out. Goodbye'
-
-
-
-
 
 
 if __name__ == '__main__':
