@@ -9,7 +9,7 @@ const Profile = () => {
   const [userWishlists, setUserWishlists] = useState([])
 
 
-  console.log(user)
+  // console.log(user)
   useEffect(() => {
     if (user) {
       fetch(`/api/${user.username}/collections`)
@@ -35,11 +35,12 @@ const Profile = () => {
   }, [user])
 
   // console.log(userWishlists)
-  // console.log(userDetails)
+  console.log(userDetails)
 
   function switchView(){
     setViewWishlist(prev => !prev)
   }
+
 
 const handleCollectionDelete = (gunpla_id) => {
   fetch("/api/collections/remove", {
@@ -50,6 +51,10 @@ const handleCollectionDelete = (gunpla_id) => {
     body: JSON.stringify({
       "gunpla_id": gunpla_id
     })
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    setUserDetails((prevState) => (prevState.filter((collection)=> collection.gunpla.id !== gunpla_id)))
   })
 }
 
