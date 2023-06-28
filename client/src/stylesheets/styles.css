@@ -33,6 +33,12 @@
     width: 50%;
 }
 
+.nav-prof-pic {
+    width: 50px;
+    height: 50px;
+    padding: 5px;
+}
+
 .navbar-nav {
     display: flex;
     align-items: center;

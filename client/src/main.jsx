@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
-import UserContext from './context/UserContext.jsx';
+import { UserProvider } from './context/UserContext.jsx';
 
-const Main = () => {
-  const [user, setUser] = useState(null);
-
-  return (
-    <React.StrictMode>
-      <UserContext.Provider value={{ user, setUser }}>
-        <App />
-      </UserContext.Provider>
-    </React.StrictMode>
-  );
-};
-
-ReactDOM.createRoot(document.getElementById('root')).render(<Main />);
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <UserProvider>
+      <App />
+    </UserProvider>
+  </React.StrictMode>
+);
