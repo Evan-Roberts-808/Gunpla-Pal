@@ -6,19 +6,24 @@ const Profile = () => {
   const { user } = useContext(UserContext)
   const [viewWishlist, setViewWishlist] = useState(false)
   const [userDetails, setUserDetails] = useState({ collections: [] })
-  console.log(userDetails.collections)
 
   useEffect(() => {
-    fetch(`/api/users/${user.username}`)
-    .then((response) => response.json())
-    .then(data => setUserDetails(data))
-  }, [user]) 
+
+    if (user) {
+      fetch(`/api/${user.username}/collections`)
+        .then((response) => response.json())
+        .then((data) => setUserDetails(data))
+        .catch((error) => console.log(error));
+    }
+  }, [user]);
+
+  console.log(userDetails)
 
   function switchView(){
     setViewWishlist(prev => !prev)
   }
 
-  const collectionDisplay = userDetails.collections.map((gunpla) => {
+  const collectionDisplay = userDetails.map((gunpla) => {
     return (
       <Card className="col-sm-2" key={gunpla.id}>
         <Card.Img src={gunpla.gunpla.model_img} />
