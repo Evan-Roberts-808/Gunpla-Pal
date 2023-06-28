@@ -1,27 +1,66 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { Row, Col, Container, Image, Card } from 'react-bootstrap'
+import { UserContext }  from '../../context/UserContext';
 
-const Profile = ({ username }) => {
-  const [user, setUser] = useState(null);
+const Profile = () => {
+  const { user } = useContext(UserContext)
+  const [viewWishlist, setViewWishlist] = useState(false)
+  const [userDetails, setUserDetails] = useState({ collections: [] })
+  console.log(userDetails.collections)
 
   useEffect(() => {
-    fetch(`/users/${username}`)
-      .then(response => response.json())
-      .then(data => setUser(data))
-      .catch(error => console.error(error))
-  }, [username])
+    fetch(`/api/users/${user.username}`)
+    .then((response) => response.json())
+    .then(data => setUserDetails(data))
+  }, [user]) 
+
+  function switchView(){
+    setViewWishlist(prev => !prev)
+  }
+
+  const collectionDisplay = userDetails.collections.map((gunpla) => {
+    return (
+      <Card className="col-sm-2" key={gunpla.id}>
+        <Card.Img src={gunpla.gunpla.model_img} />
+        <Card.Body>
+          <Card.Text>{gunpla.gunpla.model_num}</Card.Text>
+          <Card.Text>{gunpla.gunpla.model}</Card.Text>
+          <Card.Text>{gunpla.gunpla.series}</Card.Text>
+          <Card.Text>{gunpla.gunpla.release_date}</Card.Text>
+          <Card.Text>{gunpla.gunpla.notes}</Card.Text>
+          {/* <button onClick={() => addToCollection(gunpla.id)}>Add to collection</button>
+          <button onClick={() => addToWishlist(gunpla.id)}>Add to wishlist</button> */}
+        </Card.Body>
+      </Card>
+    );
+  });
 
   return (
-    <div>
+    <Container>
       {user ? (
-        <div>
+        <>
+        <Row>
+          <Col md={4}>
+            <Image src={user.profile_pic} alt="profile_picture" roundedCircle/>
+          </Col>
+          <Col md={8}>
           <h2>User Profile: {user.username}</h2>
           <p>Name: {user.name}</p>
           <p>Email: {user.email}</p>
-        </div>
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+        <h2 onClick={() => switchView()}>Collection</h2>
+        <h2 onClick={() => switchView()}>Wishlist</h2>
+        </Row>
+        <hr/>
+        {collectionDisplay}
+        </>
       ) : (
         <p>Loading...</p>
       )}
-    </div>
+    </Container>
   )
 }
 

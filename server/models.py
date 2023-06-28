@@ -63,8 +63,8 @@ class User(db.Model, SerializerMixin, UserMixin):
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
 
     # relationships
-    collections = db.relationship('Collection', back_populates='user')
-    wishlists = db.relationship('Wishlist', back_populates='user')
+    collections = db.relationship('Collection', back_populates='user', cascade="all, delete-orphan")
+    wishlists = db.relationship('Wishlist', back_populates='user', cascade="all, delete-orphan")
 
     # serialization
     serialize_rules = ('-collections.user', '-wishlists.user')

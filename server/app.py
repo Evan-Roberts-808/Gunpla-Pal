@@ -29,6 +29,7 @@ class GunplasByGrade(Resource):
 api.add_resource(GunplasByGrade, '/gunplas/<string:grade>')
 
 
+
 class UserProfile(Resource):
     @login_required
     def get(self, username):
@@ -86,6 +87,34 @@ class CollectionsByID(Resource):
 api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
 
 
+@app.route("/collections/add", methods=["POST"])
+@login_required
+def add_to_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
+    db.session.add(collection)
+    db.session.commit()
+    return {"message": "added to collection"}, 201
+
+
+@app.route("/collections/remove", methods=["DELETE"])
+@login_required
+def remove_from_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
+    db.session.delete(collection)
+    db.session.commit()
+    return {"message": "removed collection"}, 201
 # class GunPlaByID(Resource):
 #     @login_required
 #     def post(self, collection_id, gunpla_id):
@@ -94,6 +123,8 @@ api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
 #             gunpla = Gunpla.query.get(gunpla_id)
 
 # api.add_resource(GunPlaByID, '/')
+
+
 
 
 class WishlistsByUser(Resource):
@@ -109,6 +140,34 @@ class WishlistsByUser(Resource):
 
 api.add_resource(WishlistsByUser, '/<string:username>/wishlists')
 
+@app.route("/wishlist/add", methods=["POST"])
+@login_required
+def add_to_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
+    db.session.add(wishlist)
+    db.session.commit()
+    return {"message": "added to wishlist"}, 201
+
+
+@app.route("/wishlist/remove", methods=["DELETE"])
+@login_required
+def remove_from_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    # user_id = data.get('user_id')
+    user = current_user
+
+    wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
+    db.session.delete(wishlist)
+    db.session.commit()
+    return {"message": "removed wishlist"}, 201
 
 class Signup(Resource):
     def post(self):
