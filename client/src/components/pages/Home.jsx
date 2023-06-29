@@ -7,8 +7,8 @@ const Home = () => {
     <div>
       <div className="jumbotron jumbotron-fluid">
         <Container>
-          <h2>Welcome to GunplaPAL!</h2>
-          <p>Explore our database + manage your collections & wishlists.</p>
+        <h2 style={{ color: '#fff', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)', fontWeight: '700'}}>Welcome to GunplaPAL!</h2>
+        <p style={{ color: '#fff', textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8)', fontWeight: '500' }}>Explore our database + manage your collections & wishlists.</p>
         </Container>
       </div>
       <Container>

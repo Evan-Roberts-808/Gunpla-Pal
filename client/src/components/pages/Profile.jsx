@@ -9,7 +9,7 @@ const Profile = () => {
   const { user } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState('collection');
   const [viewWishlist, setViewWishlist] = useState(false);
-  const [userDetails, setUserDetails] = useState([]);
+  const [userCollection, setUserCollectionuserCollection] = useState([]);
   const [userWishlists, setUserWishlists] = useState([]);
   const [edit, setEdit] = useState(false);
   const [showSkillLevelForm, setShowSkillLevelForm] = useState(false);
@@ -91,7 +91,7 @@ const Profile = () => {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
-          setUserDetails(data); // Assuming the response data is in the correct format
+          setUserCollectionuserCollection(data); // Assuming the response data is in the correct format
         })
         .catch((error) => console.log(error));
     }
@@ -129,20 +129,20 @@ const Profile = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setUserDetails((prevState) =>
+        setUserCollectionuserCollection((prevState) =>
           prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
         );
       });
   };
 
   const renderCollections = () => {
-    if (!userDetails || userDetails.length === 0) {
+    if (!userCollection || userCollection.length === 0) {
       return <p>No collections found.</p>;
     }
 
     return (
       <Row>
-        {userDetails.map((collection) => (
+        {userCollection.map((collection) => (
           <div className="row mb-3" key={collection.id}>
             <div className="col">
               <Card>
@@ -244,13 +244,17 @@ const Profile = () => {
   };
 
   const renderStats = () => {
-    // Calculate and render user's stats
-    const totalGunplas = userDetails.length; // Total number of collected Gunplas
-    const totalGunplasByGrade = {}; // Object to store the count of Gunplas by grade
+    if (!userCollection || userCollection.length === 0) {
+      return <p>No collections found.</p>;
+    }
+  
+    const totalGunplas = userCollection.length;
+    const totalWishlistedItems = userWishlists.length;
+    const totalGunplasByGrade = {};
   
     // Count the Gunplas by grade
-    collectedGunplasByGrade.forEach((gunpla) => {
-      const grade = gunpla.grade;
+    userCollection.forEach((collection) => {
+      const grade = collection.gunpla.grade;
       if (grade in totalGunplasByGrade) {
         totalGunplasByGrade[grade]++;
       } else {
@@ -260,17 +264,17 @@ const Profile = () => {
   
     return (
       <div>
-        <h4>Stats</h4>
+        <h3>Stats</h3>
         <p>Total Gunplas Collected: {totalGunplas}</p>
+        <p>Total Wishlisted Items: {totalWishlistedItems}</p>
         <h5>Gunplas Collected/Built by Grade:</h5>
-        <ul>
+        <ul style={{ listStyleType: 'none', padding: 0 }}>
           {Object.entries(totalGunplasByGrade).map(([grade, count]) => (
             <li key={grade}>
               {grade}: {count}
             </li>
           ))}
         </ul>
-        <p>Total Wishlisted Items: {userWishlists.length}</p>
       </div>
     );
   };
@@ -287,59 +291,66 @@ const Profile = () => {
           <Col md={8}>
             <h2>{user.username}</h2>
             <p>Member since: {user.created_at}</p>
-            {showSkillLevelForm ? (
-                  <Formik
-                    initialValues={initialSkillLevelValues}
-                    validationSchema={skillLevelValidationSchema}
-                    onSubmit={handleSkillLevelSubmit}
-                  >
-                    <Form>
-                      <div>
-                        <label htmlFor="skill_level">Skill Level:</label>
-                        <Field as="select" name="skill_level" id="skill_level">
-                          <option value="">Select skill level</option>
-                          <option value="Beginner">Beginner</option>
-                          <option value="Intermediate">Intermediate</option>
-                          <option value="Advanced">Advanced</option>
-                        </Field>
-                        <ErrorMessage name="skill_level" component="div" />
-                      </div>
-                      <button type="submit">Submit</button>
-                    </Form>
-                  </Formik>
-                ) : (
-                  <>
-                    <div>
-                      Skill Level: {renderSkillLevelStars()}
-                    </div>
-                    <button onClick={() => setShowSkillLevelForm(true)}>Update Skill Level</button>
-                  </>
-                )}
             {!edit ? (
-              <p>
-                Bio: {user.bio}
-                <button onClick={() => handleEditSwitch()}>Edit Bio</button>
-              </p>
-              
-            ) : (
-              <Formik
-                initialValues={initialValues}
-                validationSchema={validationSchema}
-                onSubmit={handleSubmit}
-              >
-                <Form>
-                  <div>
-                    <Field type="text" name="bio" id="bio" />
-                    <ErrorMessage name="bio" component="div" />
-                  </div>
-                  <button type="submit">Submit</button>
-                </Form>
-              </Formik>
-            )}
+                <>
+                  <p>
+                    Bio: {user.bio}
+                    <button onClick={handleEditSwitch}>Edit Bio</button>
+                  </p>
+                  <p>
+                    Instagram: {user.instagramLink}
+                    <button onClick={handleEditSwitch}>Edit Instagram Link</button>
+                  </p>
+                  {showSkillLevelForm ? (
+                    <Formik
+                      initialValues={initialSkillLevelValues}
+                      validationSchema={skillLevelValidationSchema}
+                      onSubmit={handleSkillLevelSubmit}
+                    >
+                      <Form>
+                        <div>
+                          <label htmlFor="skillLevel">Skill Level:</label>
+                          <Field as="select" name="skillLevel" id="skillLevel">
+                            <option value="">Select skill level</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                          </Field>
+                          <ErrorMessage name="skillLevel" component="div" />
+                        </div>
+                        <button type="submit">Submit</button>
+                      </Form>
+                    </Formik>
+                  ) : (
+                    <>
+                      <div>
+                        Skill Level: {renderSkillLevelStars()}
+                      </div>
+                      <button onClick={() => setShowSkillLevelForm(true)}>Update Skill Level</button>
+                    </>
+                  )}
+                </>
+              ) : (
+                <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+                  <Form>
+                    <div>
+                      <Field type="text" name="bio" id="bio" />
+                      <ErrorMessage name="bio" component="div" />
+                    </div>
+                    <div>
+                      <Field type="text" name="instagramLink" id="instagramLink" />
+                      <ErrorMessage name="instagramLink" component="div" />
+                    </div>
+                    <button type="submit">Submit</button>
+                  </Form>
+                </Formik>
+              )}
           </Col>
         </Row>
         <hr />
         <Row>
+        {renderStats()}
+        <hr/>
           <Col md={2} style={{ order: activeSection === 'collection' ? 1 : 2 }} className="section-button">
             <h2
               className={activeSection === 'collection' ? 'collection-section active' : 'collection-section'}
