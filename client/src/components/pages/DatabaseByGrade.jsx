@@ -35,7 +35,7 @@ const DatabaseByGrade = () => {
   const gunplasPerPage = gunplasPerRow * rowsPerPage;
   const indexOfLastGunpla = currentPage * gunplasPerPage;
   const indexOfFirstGunpla = indexOfLastGunpla - gunplasPerPage;
-  const currentGunplas = gunplas.slice(indexOfFirstGunpla, indexOfLastGunpla);
+  const currentGunplas = searchedGunplas.slice(indexOfFirstGunpla, indexOfLastGunpla);
 
   useEffect(() => {
     fetch(`/api/gunplas/${grade}`)
