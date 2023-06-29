@@ -242,8 +242,8 @@ const Profile = () => {
         <p>Total Wishlisted Items: {userWishlists.length}</p>
       </div>
     );
-  }  
-
+  };
+  
 
   return (
     <Container>
