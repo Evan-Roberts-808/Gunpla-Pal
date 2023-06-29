@@ -30,6 +30,7 @@ class Gunpla(db.Model, SerializerMixin):
     # relationships
     collections = db.relationship('Collection', back_populates='gunpla')
     wishlists = db.relationship('Wishlist', back_populates='gunpla')
+    comments = db.relationship('Comment', back_populates = 'gunpla')
 
     # serialize rules
     serialize_rules = ('-collections', '-wishlists')
@@ -59,6 +60,8 @@ class User(db.Model, SerializerMixin, UserMixin):
         'Collection', back_populates='user', cascade="all, delete-orphan")
     wishlists = db.relationship(
         'Wishlist', back_populates='user', cascade="all, delete-orphan")
+    comments = db.relationship(
+        'Comment', back_populates = 'user', cascade="all, delete-orphan")
 
     # serialization
     serialize_rules = ('-collections.user', '-wishlists.user')
@@ -147,4 +150,16 @@ class Theme(db.Model, SerializerMixin):
     def __repr__(self):
         return f'''ID: {self.id}, Name: {self.name}'''
 
+class Comment(db.Model, SerializerMixin):
+    __tablename__ = 'comments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    gunpla_id = db.Column(db.Integer, db.ForeignKey('gunplas.id'))
+    text = db.Column(db.String)
+
+    user = db.relationship('User', back_populates='comments')
+    gunpla = db.relationship('Gunpla', back_populates='comments')
+
+    serialize_rules = ('-user.comments', '-gunpla')
 
