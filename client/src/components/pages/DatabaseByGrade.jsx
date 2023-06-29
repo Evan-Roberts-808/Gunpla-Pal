@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Card } from "react-bootstrap";
+import { Card, Container } from "react-bootstrap";
 import Pagination from "react-bootstrap/Pagination";
 
 ///***PAGINATION***///
@@ -195,7 +195,7 @@ function renderPageNumbers() {
   return (
     <div>
       <h2>Gunpla Database - Grade: {grade}</h2>
-      <section className="row">{gunplaDisplay}</section>
+      <Container className="row">{gunplaDisplay}</Container>
       <Pagination>
           {renderPageNumbers()}
         </Pagination>

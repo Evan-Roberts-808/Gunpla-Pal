@@ -14,21 +14,21 @@ const Home = () => {
       <Container>
         <Row>
         <Col md={4}>
-          <div className="feature-box">
+          <div className="feature-box text-center">
             <FaDatabase className="feature-icon" />
             <h3>Extensive Database</h3>
             <p>Discover a vast collection of Gunpla kits, including grades, series, release dates, and more.</p>
           </div>
         </Col>
         <Col md={4}>
-          <div className="feature-box">
+          <div className="feature-box text-center">
             <FaClipboardList className="feature-icon" />
             <h3>Manage Collections</h3>
             <p>Effortlessly organize and track your Gunpla collection, complete with detailed information and images.</p>
           </div>
         </Col>
         <Col md={4}>
-          <div className="feature-box">
+          <div className="feature-box text-center">
             <FaHeart className="feature-icon" />
             <h3>Create Wishlists</h3>
             <p>Keep track of Gunpla kits you desire by creating personalized wishlists with notes and images.</p>
