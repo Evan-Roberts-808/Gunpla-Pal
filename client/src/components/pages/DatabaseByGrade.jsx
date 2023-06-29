@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Container, Pagination } from "react-bootstrap";
 import { FaClipboardList, FaHeart } from "react-icons/fa";
+import Accordion from 'react-bootstrap/Accordion';
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 
 const DatabaseByGrade = () => {
   const { grade } = useParams();
@@ -10,6 +13,18 @@ const DatabaseByGrade = () => {
   const gunplasPerRow = 6;
   const rowsPerPage = 4;
   const pageLimit = 2;
+
+  const initialValues = {
+    comment: "",
+  };
+
+  const validationSchema = Yup.object({
+    comment: Yup.string()
+  });
+
+  const handleSubmit = (values) => {
+    console.log(values)
+  };
 
   // SEARCH STATE
   const [search, setSearch] = useState("");
@@ -110,6 +125,30 @@ const DatabaseByGrade = () => {
                     <FaHeart className="feature-icon wishlist" />
                     Wishlist
                   </button>
+                  <Accordion alwaysOpen>
+                    <Accordion.Item eventKey="0">
+                      <Accordion.Header>Comments</Accordion.Header>
+                      <Accordion.Body>
+                        This Gundam goes hard
+                      </Accordion.Body>
+                    </Accordion.Item>
+                    <Accordion.Item eventKey="1">
+                      <Accordion.Header>Add A Comment</Accordion.Header>
+                      <Accordion.Body>
+                        <Formik
+                          initialValues={initialValues}
+                          validationSchema={validationSchema}
+                          onSubmit={handleSubmit}
+                          >
+                        <Form>
+                          <Field type="text" name="comment" id="comment" />
+                          <button type="submit">Post</button>
+                        </Form>
+                        
+                        </Formik>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
                 </div>
               </div>
             </div>

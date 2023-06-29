@@ -145,3 +145,5 @@ class Theme(db.Model, SerializerMixin):
     # representation
     def __repr__(self):
         return f'''ID: {self.id}, Name: {self.name}'''
+
+
