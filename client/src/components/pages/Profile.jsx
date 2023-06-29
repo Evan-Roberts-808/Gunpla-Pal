@@ -14,10 +14,6 @@ const Profile = () => {
   const navigate = useNavigate();
   console.log(activeSection);
 
-  const initialValues = {
-    bio: "",
-  };
-
   const validationSchema = Yup.object({
     bio: Yup.string().required("Please fill out your bio"),
   });
@@ -43,6 +39,44 @@ const Profile = () => {
         .catch((error) => console.log(error));
     }
   }, [user]);
+
+  // SEARCH STATE
+  const [search, setSearch] = useState("");
+
+  // HANDLE SEARCH
+  function handleSearch(e) {
+    setSearch(e.target.value);
+    setCurrentPage(1);
+  }
+
+  // SEARCHED GUNDAMS ARRAYS
+  const searchedCollectionGunplas = [...userCollections].filter((el) => {
+    const searchedNameMatch = el.gunpla.model
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const searchedSeriesMatch =
+      el.gunpla.series &&
+      el.gunpla.series.toLowerCase().includes(search.toLowerCase());
+
+    return searchedNameMatch || searchedSeriesMatch;
+  });
+
+  const searchedWishlistGunplas = [...userWishlists].filter((el) => {
+    const searchedNameMatch = el.gunpla.model
+      .toLowerCase()
+      .includes(search.toLowerCase());
+
+    const searchedSeriesMatch =
+      el.gunpla.series &&
+      el.gunpla.series.toLowerCase().includes(search.toLowerCase());
+
+    return searchedNameMatch || searchedSeriesMatch;
+  });
+
+  const initialValues = {
+    bio: "",
+  };
 
   useEffect(() => {
     if (user) {
@@ -92,27 +126,32 @@ const Profile = () => {
         gunpla_id: gunpla_id,
       }),
     })
-    .then((response) => response.json())
-    .then((data) => {
-      setUserCollections((prevState) =>
-        prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
-      );
-      fetch(`/api/${user.username}/wishlists`)
       .then((response) => response.json())
       .then((data) => {
-        setUserWishlists(data)
-      })
-    })
-  }
+        setUserCollections((prevState) =>
+          prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
+        );
+        fetch(`/api/${user.username}/wishlists`)
+          .then((response) => response.json())
+          .then((data) => {
+            setUserWishlists(data);
+          });
+      });
+  };
 
   const renderCollections = () => {
-    if (!userCollections || userCollections.length === 0) {
+    if (!searchedCollectionGunplas || userCollections.length === 0) {
       return <p>No collections found.</p>;
     }
 
     return (
       <Row>
-        {userCollections.map((collection) => (
+        <input
+          type="text"
+          placeholder="Search collection by model name or series..."
+          onChange={(e) => handleSearch(e)}
+        ></input>
+        {searchedCollectionGunplas.map((collection) => (
           <div className="row mb-3" key={collection.id}>
             <div className="col">
               <Card>
@@ -135,8 +174,12 @@ const Profile = () => {
                       </p>
                       <button
                         className="collection-button"
-                        onClick={() => handleMoveToWishlist(collection.gunpla.id)}
-                      >Move to Wishlist</button>
+                        onClick={() =>
+                          handleMoveToWishlist(collection.gunpla.id)
+                        }
+                      >
+                        Move to Wishlist
+                      </button>
                       <button
                         className="collection-button"
                         onClick={() =>
@@ -184,27 +227,32 @@ const Profile = () => {
         gunpla_id: gunpla_id,
       }),
     })
-    .then((response) => response.json())
-    .then((data) => {
-      setUserWishlists((prevState) =>
-        prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
-      );
-      fetch(`/api/${user.username}/collections`)
       .then((response) => response.json())
       .then((data) => {
-        setUserCollections(data)
-      })
-    })
-  }
+        setUserWishlists((prevState) =>
+          prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
+        );
+        fetch(`/api/${user.username}/collections`)
+          .then((response) => response.json())
+          .then((data) => {
+            setUserCollections(data);
+          });
+      });
+  };
 
   const renderWishlists = () => {
-    if (!userWishlists || userWishlists.length === 0) {
+    if (!searchedWishlistGunplas || userWishlists.length === 0) {
       return <p>No wishlists found. </p>;
     }
 
     return (
       <Row>
-        {userWishlists.map((wishlist) => (
+        <input
+          type="text"
+          placeholder="Search wishlist by model name or series..."
+          onChange={(e) => handleSearch(e)}
+        ></input>
+        {searchedWishlistGunplas.map((wishlist) => (
           <div className="row mb-3" key={wishlist.id}>
             <div className="col">
               <Card>
@@ -227,8 +275,12 @@ const Profile = () => {
                       </p>
                       <button
                         className="wishlist-button"
-                        onClick={() => handleMoveToCollection(wishlist.gunpla.id)}
-                      >Move to Collection</button>
+                        onClick={() =>
+                          handleMoveToCollection(wishlist.gunpla.id)
+                        }
+                      >
+                        Move to Collection
+                      </button>
                       <button
                         className="wishlist-button"
                         onClick={() => handleWishlistDelete(wishlist.gunpla.id)}
