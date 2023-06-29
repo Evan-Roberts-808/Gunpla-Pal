@@ -42,6 +42,7 @@ class UserProfile(Resource):
 
 api.add_resource(UserProfile, '/users/<string:username>')
 
+
 class UserBio(Resource):
     @login_required
     def patch(self, username):
@@ -54,17 +55,21 @@ class UserBio(Resource):
             db.session.commit()
             return {user.to_dict(), 200}
         except:
-            return {'error' : 'could not update bio'}
-        
+            return {'error': 'could not update bio'}
+
+
 api.add_resource(UserBio, '/users/<string:username>/bio')
+
 
 class UserSkillLevel(Resource):
     @login_required
-    def post(self, username):
+    def patch(self, username):
         data = request.get_json()
         try:
             user = User.query.filter(User.username == username).first()
-            user.skill_level = data.get('skill_level')
+            for attr in data:
+                setattr(user, attr, data.get(attr))
+            db.session.add(user)
             db.session.commit()
             return user.to_dict(), 200
         except:
@@ -93,35 +98,7 @@ class CollectionsByUser(Resource):
 
 
 api.add_resource(CollectionsByUser, '/<string:username>/collections')
-# '/<string:username>/collections
-# user profile route '/<string:username>
 
-
-# class CollectionsByID(Resource):
-#     @login_required
-#     def get(self, collection_id):
-#         try:
-#             collection = Collection.query.get(collection_id)
-#             if collection and collection.user == current_user:
-#                 return collection.to_dict(), 200
-#             return {'error': 'collection not found'}, 404
-#         except:
-#             return {'error': 'collection not found'}, 404
-
-#     @login_required
-#     def delete(self, collection_id):
-#         try:
-#             collection = Collection.query.get(collection_id)
-#             if collection and collection.user == current_user:
-#                 db.session.delete(collection)
-#                 db.session.commit()
-#                 return {'message': 'collection deleted successfully'}, 200
-#             return {'error': 'collection not found'}, 404
-#         except:
-#             return {'error': 'collection not found'}, 404
-
-
-# api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
 
 @app.route("/users/<string:username>/stats", methods=["GET"])
 @login_required
@@ -146,7 +123,6 @@ def add_to_collection():
     data = request.get_json()
     gunpla_id = data.get("gunpla_id")
 
-    # user_id = data.get('user_id')
     user = current_user
 
     collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
@@ -161,10 +137,10 @@ def remove_from_collection():
     data = request.get_json()
     gunpla_id = data.get("gunpla_id")
 
-    # user_id = data.get('user_id')
     user = current_user
 
-    collection = Collection.query.filter_by(user_id=user.id, gunpla_id=gunpla_id).first()
+    collection = Collection.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
     if collection:
         db.session.delete(collection)
         db.session.commit()
@@ -172,30 +148,25 @@ def remove_from_collection():
     else:
         return {"error": "not found"}, 404
 
-    # db.session.delete(collection)
-    # db.session.commit()
-    # return {"message": "removed collection"}, 201
 
+@app.route("/collections/move-to-wishlist", methods=["POST"])
+def move_to_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
 
-# class WishlistsByUser(Resource):
-#     @login_required
-#     def get(self, username):
-#         try:
-#             user = User.query.filter(User.username == username).first()
-#             if user:
-#                 user_data = user.to_dict()
-#                 wishlists = [
-#                     {
-#                         **w.to_dict(),
-#                         'gunpla': w.gunpla.to_dict()  # Include the Gunpla details
-#                     }
-#                     for w in user.wishlists
-#                 ]
-#                 user_data['wishlists'] = wishlists
-#                 return user_data, 200
-#             return {'error': 'user not found'}, 404
-#         except:
-#             return {'error': 'user not found'}, 404
+    user = current_user
+
+    collection = Collection.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
+    if collection:
+        wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
+        db.session.add(wishlist)
+        db.session.delete(collection)
+        db.session.commit()
+        return {"message": "Moved to wishlist"}, 201
+    else:
+        return {"Gunpla": "Gunpla not found in collection"}, 404
+
 
 class WishlistsByUser(Resource):
     @login_required
@@ -224,7 +195,6 @@ def add_to_wishlist():
     data = request.get_json()
     gunpla_id = data.get("gunpla_id")
 
-    # user_id = data.get('user_id')
     user = current_user
 
     wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
@@ -239,10 +209,10 @@ def remove_from_wishlist():
     data = request.get_json()
     gunpla_id = data.get("gunpla_id")
 
-    # user_id = data.get('user_id')
     user = current_user
 
-    wishlist = Wishlist.query.filter_by(user_id=user.id, gunpla_id=gunpla_id).first()
+    wishlist = Wishlist.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
     if wishlist:
         db.session.delete(wishlist)
         db.session.commit()
@@ -263,6 +233,25 @@ def update_instagram_link(username):
         return {"message": "Instagram link updated successfully"}, 200
     except:
         return {"error": "Failed to update Instagram link"}, 500
+
+
+@app.route("/wishlist/move-to-collection", methods=["POST"])
+def move_to_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    user = current_user
+
+    wishlist = Wishlist.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
+    if wishlist:
+        collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
+        db.session.add(collection)
+        db.session.delete(wishlist)
+        db.session.commit()
+        return {"message": "Moved to collection"}, 201
+    else:
+        return {"Gunpla": "Gunpla not found in wishlist"}, 404
 
 
 class Signup(Resource):
@@ -321,7 +310,6 @@ api.add_resource(Login, '/login')
 @login_required
 def logout():
     logout_user()
-    # return redirect(url_for('login'))
     return f'You have logged out. Goodbye'
 
 

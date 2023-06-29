@@ -7,8 +7,9 @@ import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
   const { user } = useContext(UserContext);
+  const [activeSection, setActiveSection] = useState('collection');
   const [viewWishlist, setViewWishlist] = useState(false);
-  const [userDetails, setUserDetails] = useState([]);
+  const [userCollection, setUserCollection] = useState([]);
   const [userWishlists, setUserWishlists] = useState([]);
   const [edit, setEdit] = useState(false);
   const [showSkillLevelForm, setShowSkillLevelForm] = useState(false);
@@ -24,7 +25,7 @@ const Profile = () => {
   };
 
   const initialSkillLevelValues = {
-    skillLevel: '',
+    skill_level: '',
   };
 
   const validationSchema = Yup.object({
@@ -33,11 +34,10 @@ const Profile = () => {
   });
 
   const skillLevelValidationSchema = Yup.object({
-    skillLevel: Yup.string().required('Please select a skill level'),
+    skill_level: Yup.string().required('Please select a skill level'),
   });
 
   const handleSubmit = (values) => {
-    console.log(values);
     fetch(`/api/users/${user.username}/bio`, {
       method: 'PATCH',
       headers: { 'Content-type': 'application/json' },
@@ -51,13 +51,13 @@ const Profile = () => {
 
   const handleSkillLevelSubmit = (values) => {
     fetch(`/api/users/${user.username}/skill_level`, {
-      method: 'POST',
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(values),
     })
       .then((resp) => resp.json())
       .then((data) => {
-        setSelectedSkillLevel(values.skillLevel); // Update the selected skill level
+        setSelectedSkillLevel(values); // Update the selected skill level
       });
   };
 
@@ -83,15 +83,14 @@ const Profile = () => {
       fetchCollectedGunplasByGrade();
     }
   }, [user]);
-  
-  
+
 
   useEffect(() => {
     if (user) {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
-          setUserDetails(data); // Assuming the response data is in the correct format
+          setUserCollection(data); // Assuming the response data is in the correct format
         })
         .catch((error) => console.log(error));
     }
@@ -102,11 +101,16 @@ const Profile = () => {
       fetch(`/api/${user.username}/wishlists`)
         .then((response) => response.json())
         .then((data) => {
+          console.log(data);
           setUserWishlists(data);
         })
         .catch((error) => console.log(error));
     }
   }, [user]);
+
+  const switchView = (section) => {
+    setActiveSection(section);
+  };
 
   const handleEditSwitch = () => {
     setEdit((prevEdit) => !prevEdit);
@@ -124,33 +128,76 @@ const Profile = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setUserDetails((prevState) =>
+        setUserCollection((prevState) =>
           prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
         );
       });
   };
 
+  const handleMoveToWishlist = (gunpla_id) => {
+    fetch("/api/collections/move-to-wishlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserCollection((prevState) =>
+        prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/wishlists`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserWishlists(data)
+      })
+    })
+  }
+
   const renderCollections = () => {
-    if (!userDetails || userDetails.length === 0) {
+    if (!userCollection || userCollection.length === 0) {
       return <p>No collections found.</p>;
     }
 
     return (
       <Row>
-        {userDetails.map((collection) => (
-          <Col sm={2} key={collection.id}>
-            <Card>
-              <Card.Img variant="top" src={collection.gunpla?.model_img} />
-              <Card.Body>
-                <Card.Title>{collection.gunpla?.model_num}</Card.Title>
-                <Card.Text>{collection.gunpla?.model}</Card.Text>
-                <Card.Text>{collection.gunpla?.series}</Card.Text>
-                <Card.Text>{collection.gunpla?.release_date}</Card.Text>
-                <Card.Text>{collection.gunpla?.notes}</Card.Text>
-                <button onClick={() => handleCollectionDelete(collection.gunpla.id)}>Delete</button>
-              </Card.Body>
-            </Card>
-          </Col>
+        {userCollection.map((collection) => (
+          <div className="row mb-3" key={collection.id}>
+            <div className="col">
+              <Card>
+                <div className="row g-0">
+                  <div className="col-sm-3 d-flex align-items-center">
+                    <Card.Img src={collection.gunpla.model_img} className="mx-auto" />
+                  </div>
+                  <div className="col-sm-8 align-items-center">
+                    <div className="card-body">
+                      <h5 className="card-title">{collection.gunpla.model}</h5>
+                      <p className="card-text">{collection.gunpla.series}</p>
+                      <p className="card-text">
+                        {collection.gunpla.release_date}
+                      </p>
+                      <p className="card-text text-truncate">
+                        {collection.gunpla.notes}
+                      </p>
+                      <button
+                        className="collection-button"
+                        onClick={() => handleMoveToWishlist(collection.gunpla.id)}
+                      >Move to Wishlist</button>
+                      <button
+                        className="collection-button"
+                        onClick={() => handleCollectionDelete(collection.gunpla.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
         ))}
       </Row>
     );
@@ -174,6 +221,29 @@ const Profile = () => {
       });
   };
 
+  const handleMoveToCollection = (gunpla_id) => {
+    fetch("/api/wishlist/move-to-collection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserWishlists((prevState) =>
+        prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/collections`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserCollection(data)
+      })
+    })
+  }
+
   const renderWishlists = () => {
     if (!userWishlists || userWishlists.length === 0) {
       return <p>No wishlists found. </p>;
@@ -182,44 +252,70 @@ const Profile = () => {
     return (
       <Row>
         {userWishlists.map((wishlist) => (
-          <Col sm={2} key={wishlist.id}>
-            <Card>
-              <Card.Img variant="top" src={wishlist.gunpla?.model_img} />
-              <Card.Body>
-                <Card.Title>{wishlist.gunpla?.model_num}</Card.Title>
-                <Card.Text>{wishlist.gunpla?.model}</Card.Text>
-                <Card.Text>{wishlist.gunpla?.series}</Card.Text>
-                <Card.Text>{wishlist.gunpla?.release_date}</Card.Text>
-                <Card.Text>{wishlist.gunpla?.notes}</Card.Text>
-                <button onClick={() => handleWishlistDelete(wishlist.gunpla.id)}>Delete</button>
-              </Card.Body>
-            </Card>
-          </Col>
+          <div className="row mb-3" key={wishlist.id}>
+            <div className="col">
+              <Card>
+                <div className="row g-0">
+                  <div className="col-sm-3 d-flex align-items-center">
+                    <Card.Img src={wishlist.gunpla.model_img} className="mx-auto" />
+                  </div>
+                  <div className="col-sm-8 align-items-center">
+                    <div className="card-body">
+                      <h5 className="card-title">{wishlist.gunpla.model}</h5>
+                      <p className="card-text">{wishlist.gunpla.series}</p>
+                      <p className="card-text">
+                        {wishlist.gunpla.release_date}
+                      </p>
+                      <p className="card-text text-truncate">
+                        {wishlist.gunpla.notes}
+                      </p>
+                      <button
+                        className="wishlist-button"
+                        onClick={() => handleMoveToCollection(wishlist.gunpla.id)}
+                      >Move to Collection</button>
+                      <button
+                        className="wishlist-button"
+                        onClick={() => handleWishlistDelete(wishlist.gunpla.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
         ))}
       </Row>
     );
   };
 
   const renderSkillLevelStars = () => {
-    if (selectedSkillLevel === 'Beginner') {
+
+    if (user.skill_level === 'Beginner') {
       return <span>🥉</span>;
-    } else if (selectedSkillLevel === 'Intermediate') {
+    } else if (user.skill_level === 'Intermediate') {
       return <span>🥈</span>;
-    } else if (selectedSkillLevel === 'Advanced') {
+    } else if (user.skill_level === 'Advanced') {
       return <span>🥇</span>;
+
     } else {
       return null;
     }
   };
 
   const renderStats = () => {
-    // Calculate and render user's stats
-    const totalGunplas = userDetails.length; // Total number of collected Gunplas
-    const totalGunplasByGrade = {}; // Object to store the count of Gunplas by grade
+    if (!userCollection || userCollection.length === 0) {
+      return <p>No collections found.</p>;
+    }
+  
+    const totalGunplas = userCollection.length;
+    const totalWishlistedItems = userWishlists.length;
+    const totalGunplasByGrade = {};
   
     // Count the Gunplas by grade
-    collectedGunplasByGrade.forEach((gunpla) => {
-      const grade = gunpla.grade;
+    userCollection.forEach((collection) => {
+      const grade = collection.gunpla.grade;
       if (grade in totalGunplasByGrade) {
         totalGunplasByGrade[grade]++;
       } else {
@@ -229,17 +325,17 @@ const Profile = () => {
   
     return (
       <div>
-        <h4>Stats</h4>
+        <h3>Stats</h3>
         <p>Total Gunplas Collected: {totalGunplas}</p>
+        <p>Total Wishlisted Items: {totalWishlistedItems}</p>
         <h5>Gunplas Collected/Built by Grade:</h5>
-        <ul>
+        <ul style={{ listStyleType: 'none', padding: 0 }}>
           {Object.entries(totalGunplasByGrade).map(([grade, count]) => (
             <li key={grade}>
               {grade}: {count}
             </li>
           ))}
         </ul>
-        <p>Total Wishlisted Items: {userWishlists.length}</p>
       </div>
     );
   };
@@ -247,17 +343,16 @@ const Profile = () => {
 
   return (
     <Container>
-      {user ? (
-        <>
-          <Row>
-            <Col md={4}>
-              <Image src={user.profile_pic} alt="profile_picture" roundedCircle />
-            </Col>
-            <Col md={8}>
-              <h2>User Profile: {user.username}</h2>
-              <p>Name: {user.name}</p>
-              <p>Email: {user.email}</p>
-              {!edit ? (
+    {user ? (
+      <>
+        <Row>
+          <Col md={4}>
+            <Image src={user.profile_pic} alt="profile_picture" className="profile-pic" roundedCircle />
+          </Col>
+          <Col md={8}>
+            <h2>{user.username}</h2>
+            <p>Member since: {user.created_at}</p>
+            {!edit ? (
                 <>
                   <p>
                     Bio: {user.bio}
@@ -311,19 +406,38 @@ const Profile = () => {
                   </Form>
                 </Formik>
               )}
-            </Col>
-          </Row>
-          <hr />
-          {renderStats()}
-          <h4>Collections</h4>
-          {renderCollections()}
-          <h4>Wishlists</h4>
-          {renderWishlists()}
-        </>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </Container>
-  );
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+        {renderStats()}
+        <hr/>
+          <Col md={2} style={{ order: activeSection === 'collection' ? 1 : 2 }} className="section-button">
+            <h2
+              className={activeSection === 'collection' ? 'collection-section active' : 'collection-section'}
+              onClick={() => switchView('collection')}
+            >
+              Collection
+            </h2>
+          </Col>
+          <Col md={2} style={{ order: activeSection === 'collection' ? 2 : 1 }} className="section-button">
+            <h2
+              className={activeSection === 'wishlist' ? 'wishlist-section active' : 'wishlist-section'}
+              onClick={() => switchView('wishlist')}
+            >
+              Wishlist
+            </h2>
+          </Col>
+        </Row>
+        <hr />
+        <div>{activeSection === 'collection' ? renderCollections() : renderWishlists()}</div>
+      </>
+    ) : (
+      <p>Loading...</p>
+    )}
+  </Container>
+);
 };
+
 export default Profile;
+
