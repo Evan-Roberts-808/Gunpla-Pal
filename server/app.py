@@ -234,6 +234,20 @@ def remove_from_wishlist():
         return {"error": "skill issue"}, 404
 
 
+@app.route("/users/<string:username>/instagram_link", methods=["PATCH"])
+@login_required
+def update_instagram_link(username):
+    data = request.get_json()
+    instagram_link = data.get("instagramLink")
+    try:
+        user = User.query.filter(User.username == username).first()
+        user.instagram_link = instagram_link
+        db.session.commit()
+        return {"message": "Instagram link updated successfully"}, 200
+    except:
+        return {"error": "Failed to update Instagram link"}, 500
+
+
 class Signup(Resource):
     def post(self):
         data = request.get_json()
