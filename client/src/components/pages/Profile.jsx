@@ -359,7 +359,7 @@ const Profile = () => {
 
   const renderStats = () => {
     if (!userCollection || userCollection.length === 0) {
-      return <p>No collections found.</p>;
+      return <p>No stats to be tracked. Please add models to your collection / wishlist</p>;
     }
   
     const totalGunplas = userCollection.length;
