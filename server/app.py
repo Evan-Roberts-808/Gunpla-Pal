@@ -58,6 +58,20 @@ class UserBio(Resource):
         
 api.add_resource(UserBio, '/users/<string:username>/bio')
 
+class UserSkillLevel(Resource):
+    @login_required
+    def post(self, username):
+        data = request.get_json()
+        try:
+            user = User.query.filter(User.username == username).first()
+            user.skill_level = data.get('skill_level')
+            db.session.commit()
+            return user.to_dict(), 200
+        except:
+            return {'error': 'could not select skill level'}
+
+
+api.add_resource(UserSkillLevel, '/users/<string:username>/skill_level')
 
 class CollectionsByUser(Resource):
     @login_required
