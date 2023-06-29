@@ -49,6 +49,7 @@ class User(db.Model, SerializerMixin, UserMixin):
     theme_id = db.Column(db.Integer, db.ForeignKey('themes.id'))
     profile_pic = db.Column(db.String)
     bio = db.Column(db.String)
+    skill_level = db.Column(db.String)
 
     created_at = db.Column(db.DateTime, server_default=db.func.now())
     updated_at = db.Column(db.DateTime, onupdate=db.func.now())
