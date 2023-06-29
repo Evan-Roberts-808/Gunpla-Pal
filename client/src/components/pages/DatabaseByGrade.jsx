@@ -1,132 +1,41 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Card } from "react-bootstrap";
-import Pagination from "react-bootstrap/Pagination";
+import { Card, Container, Pagination } from "react-bootstrap";
+import { FaClipboardList, FaHeart } from "react-icons/fa";
 
-///***PAGINATION***///
 const DatabaseByGrade = () => {
   const { grade } = useParams();
   const [gunplas, setGunplas] = useState([]);
-  const [gunplasPerPage] = useState(30);
   const [currentPage, setCurrentPage] = useState(1);
+  const gunplasPerRow = 6;
+  const rowsPerPage = 4;
+  const pageLimit = 2;
 
-  // Functionality for React Bootstrap Pagination
-  const indexOfLastGunpla = currentPage * gunplasPerPage;
-  const indexOfFirstGunpla = indexOfLastGunpla - gunplasPerPage;
-  const currentGunplas = gunplas.slice(
-    indexOfFirstGunpla,
-    indexOfLastGunpla
-  );
+  // SEARCH STATE
+  const [search, setSearch] = useState("");
 
-const totalPages = Math.ceil(gunplas.length / gunplasPerPage);
-
-function handlePageChange(pageNumber) {
-  setCurrentPage(pageNumber);
-}
-
-function renderPageNumbers() {
-  const pageNumbers = [];
-  const limit = 3; // Number of page numbers to display before and after ellipsis
-
-  if (totalPages <= 5) {
-    for (let i = 1; i <= totalPages; i++) {
-      pageNumbers.push(
-        <Pagination.Item
-          key={i}
-          active={i === currentPage}
-          onClick={() => handlePageChange(i)}
-        >
-          {i}
-        </Pagination.Item>
-      );
-    }
-  } else {
-    if (currentPage <= limit + 1) {
-      for (let i = 1; i <= limit + 2; i++) {
-        pageNumbers.push(
-          <Pagination.Item
-            key={i}
-            active={i === currentPage}
-            onClick={() => handlePageChange(i)}
-          >
-            {i}
-          </Pagination.Item>
-        );
-      }
-      pageNumbers.push(<Pagination.Ellipsis key="ellipsis1" />);
-      pageNumbers.push(
-        <Pagination.Item
-          key={totalPages}
-          active={totalPages === currentPage}
-          onClick={() => handlePageChange(totalPages)}
-        >
-          {totalPages}
-        </Pagination.Item>
-      );
-    } else if (currentPage >= totalPages - limit) {
-      pageNumbers.push(
-        <Pagination.Item
-          key={1}
-          active={1 === currentPage}
-          onClick={() => handlePageChange(1)}
-        >
-          {1}
-        </Pagination.Item>
-      );
-      pageNumbers.push(<Pagination.Ellipsis key="ellipsis2" />);
-      for (let i = totalPages - (limit + 1); i <= totalPages; i++) {
-        pageNumbers.push(
-          <Pagination.Item
-            key={i}
-            active={i === currentPage}
-            onClick={() => handlePageChange(i)}
-          >
-            {i}
-          </Pagination.Item>
-        );
-      }
-    } else {
-      pageNumbers.push(
-        <Pagination.Item
-          key={1}
-          active={1 === currentPage}
-          onClick={() => handlePageChange(1)}
-        >
-          {1}
-        </Pagination.Item>
-      );
-      pageNumbers.push(<Pagination.Ellipsis key="ellipsis3" />);
-      for (
-        let i = currentPage - limit;
-        i <= currentPage + limit;
-        i++
-      ) {
-        pageNumbers.push(
-          <Pagination.Item
-            key={i}
-            active={i === currentPage}
-            onClick={() => handlePageChange(i)}
-          >
-            {i}
-          </Pagination.Item>
-        );
-      }
-      pageNumbers.push(<Pagination.Ellipsis key="ellipsis4" />);
-      pageNumbers.push(
-        <Pagination.Item
-          key={totalPages}
-          active={totalPages === currentPage}
-          onClick={() => handlePageChange(totalPages)}
-        >
-          {totalPages}
-        </Pagination.Item>
-      );
-    }
+  // HANDLE SEARCH
+  function handleSearch(e) {
+    setSearch(e.target.value);
+    setCurrentPage(1);
   }
 
-  return pageNumbers;
-}
+  // SEARCHED GUNDAMS ARRAY
+  const searchedGunplas = [...gunplas].filter((el) => {
+    const searchedNameMatch = el.model
+      .toLowerCase()
+      .includes(search.toLowerCase());
 
+    const searchedSeriesMatch =
+      el.series && el.series.toLowerCase().includes(search.toLowerCase());
+
+    return searchedNameMatch || searchedSeriesMatch;
+  });
+
+  const gunplasPerPage = gunplasPerRow * rowsPerPage;
+  const indexOfLastGunpla = currentPage * gunplasPerPage;
+  const indexOfFirstGunpla = indexOfLastGunpla - gunplasPerPage;
+  const currentGunplas = gunplas.slice(indexOfFirstGunpla, indexOfLastGunpla);
 
   useEffect(() => {
     fetch(`/api/gunplas/${grade}`)
@@ -144,17 +53,17 @@ function renderPageNumbers() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        gunpla_id: gunpla_id
+        gunpla_id: gunpla_id,
       }),
     })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Added to collection", data)
-    })
-    .catch((error) => {
-      console.error("Error adding to collection", error)
-    })
-  }
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Added to collection", data);
+      })
+      .catch((error) => {
+        console.error("Error adding to collection", error);
+      });
+  };
 
   const addToWishlist = (gunpla_id) => {
     fetch("/api/wishlist/add", {
@@ -163,43 +72,192 @@ function renderPageNumbers() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        gunpla_id: gunpla_id
+        gunpla_id: gunpla_id,
       }),
     })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log("Added to wishlist", data)
-    })
-    .catch((error) => {
-      console.error("Error adding to wishlist", error)
-    })
-  }
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Added to wishlist", data);
+      })
+      .catch((error) => {
+        console.error("Error adding to wishlist", error);
+      });
+  };
 
   const gunplaDisplay = currentGunplas.map((gunpla) => {
     return (
-      <Card className="col-sm-2" key={gunpla.id}>
-        <Card.Img src={gunpla.model_img}></Card.Img>
-        <Card.Body>
-          <Card.Text>{gunpla.model_num}</Card.Text>
-          <Card.Text>{gunpla.model}</Card.Text>
-          <Card.Text>{gunpla.series}</Card.Text>
-          <Card.Text>{gunpla.release_date}</Card.Text>
-          <Card.Text>{gunpla.notes}</Card.Text>
-          <button onClick={() => addToCollection(gunpla.id)}>Add to collection</button>
-          <button onClick={() => addToWishlist(gunpla.id)}>Add to wishlist</button>
-        </Card.Body>
-      </Card>
+      <div className="row mb-3" key={gunpla.id}>
+        <div className="col">
+          <Card>
+            <div className="row g-0">
+              <div className="col-sm-3 d-flex align-items-center">
+                <Card.Img src={gunpla.model_img} className="mx-auto" />
+              </div>
+              <div className="col-sm-8 align-items-center">
+                <div className="card-body">
+                  <h5 className="card-title">{gunpla.model}</h5>
+                  <p className="card-text">{gunpla.series}</p>
+                  <p className="card-text">{gunpla.release_date}</p>
+                  <p className="card-text text-truncate">{gunpla.notes}</p>
+                  <button
+                    className="collection-button"
+                    onClick={() => addToCollection(gunpla.id)}
+                  >
+                    <FaClipboardList className="feature-icon collection" />
+                    Collection
+                  </button>
+                  <button onClick={() => addToWishlist(gunpla.id)}>
+                    <FaHeart className="feature-icon wishlist" />
+                    Wishlist
+                  </button>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
     );
   });
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const totalPages = Math.ceil(gunplas.length / gunplasPerPage);
+  const pageNumbers = [];
+
+  if (totalPages <= 1) {
+    // No need to display pagination if there is only one page
+    return (
+      <Container>
+        <section className="row">{gunplaDisplay}</section>
+      </Container>
+    );
+  }
+
+  if (currentPage <= pageLimit + 1) {
+    for (let i = 1; i <= Math.min(totalPages, pageLimit * 2 + 1); i++) {
+      pageNumbers.push(
+        <Pagination.Item
+          key={i}
+          active={i === currentPage}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Pagination.Item>
+      );
+    }
+    if (totalPages > pageLimit * 2 + 1) {
+      pageNumbers.push(<Pagination.Ellipsis key="ellipsis1" />);
+      pageNumbers.push(
+        <Pagination.Item
+          key={totalPages}
+          active={totalPages === currentPage}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </Pagination.Item>
+      );
+    }
+  } else if (currentPage >= totalPages - pageLimit) {
+    pageNumbers.push(
+      <Pagination.Item
+        key={1}
+        active={1 === currentPage}
+        onClick={() => handlePageChange(1)}
+      >
+        {1}
+      </Pagination.Item>
+    );
+    if (totalPages > pageLimit * 2 + 1) {
+      pageNumbers.push(<Pagination.Ellipsis key="ellipsis1" />);
+    }
+    for (
+      let i = Math.max(1, totalPages - pageLimit * 2);
+      i <= totalPages;
+      i++
+    ) {
+      pageNumbers.push(
+        <Pagination.Item
+          key={i}
+          active={i === currentPage}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Pagination.Item>
+      );
+    }
+  } else {
+    pageNumbers.push(
+      <Pagination.Item
+        key={1}
+        active={1 === currentPage}
+        onClick={() => handlePageChange(1)}
+      >
+        {1}
+      </Pagination.Item>
+    );
+    if (totalPages > pageLimit * 2 + 1) {
+      pageNumbers.push(<Pagination.Ellipsis key="ellipsis1" />);
+    }
+    for (let i = currentPage - pageLimit; i <= currentPage + pageLimit; i++) {
+      pageNumbers.push(
+        <Pagination.Item
+          key={i}
+          active={i === currentPage}
+          onClick={() => handlePageChange(i)}
+        >
+          {i}
+        </Pagination.Item>
+      );
+    }
+    if (totalPages > pageLimit * 2 + 1) {
+      pageNumbers.push(<Pagination.Ellipsis key="ellipsis2" />);
+      pageNumbers.push(
+        <Pagination.Item
+          key={totalPages}
+          active={totalPages === currentPage}
+          onClick={() => handlePageChange(totalPages)}
+        >
+          {totalPages}
+        </Pagination.Item>
+      );
+    }
+  }
+
   return (
-    <div>
+    <Container>
       <h2>Gunpla Database - Grade: {grade}</h2>
-      <section className="row">{gunplaDisplay}</section>
-      <Pagination>
-          {renderPageNumbers()}
+      <input
+        type="text"
+        placeholder="Search by model name or series..."
+        onChange={(e) => handleSearch(e)}
+      ></input>
+      <div className="row justify-content-center model-row">
+        {gunplaDisplay}
+      </div>
+      <div className="pagination-container d-flex justify-content-center">
+        <Pagination>
+          <Pagination.First
+            onClick={() => handlePageChange(1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Prev
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
+          {pageNumbers}
+          <Pagination.Next
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          />
+          <Pagination.Last
+            onClick={() => handlePageChange(totalPages)}
+            disabled={currentPage === totalPages}
+          />
         </Pagination>
-    </div>
+      </div>
+    </Container>
   );
 };
 
