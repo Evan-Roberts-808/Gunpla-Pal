@@ -99,6 +99,7 @@ class CollectionsByUser(Resource):
 
 api.add_resource(CollectionsByUser, '/<string:username>/collections')
 
+
 @app.route("/users/<string:username>/stats", methods=["GET"])
 @login_required
 def user_stats(username):
@@ -146,6 +147,7 @@ def remove_from_collection():
         return {"message": "removed collection"}, 201
     else:
         return {"error": "not found"}, 404
+
 
 @app.route("/collections/move-to-wishlist", methods=["POST"])
 def move_to_wishlist():
@@ -219,7 +221,6 @@ def remove_from_wishlist():
         return {"error": "skill issue"}, 404
 
 
-<<<<<<< HEAD
 @app.route("/users/<string:username>/instagram_link", methods=["PATCH"])
 @login_required
 def update_instagram_link(username):
@@ -232,7 +233,8 @@ def update_instagram_link(username):
         return {"message": "Instagram link updated successfully"}, 200
     except:
         return {"error": "Failed to update Instagram link"}, 500
-=======
+
+
 @app.route("/wishlist/move-to-collection", methods=["POST"])
 def move_to_collection():
     data = request.get_json()
@@ -250,8 +252,6 @@ def move_to_collection():
         return {"message": "Moved to collection"}, 201
     else:
         return {"Gunpla": "Gunpla not found in wishlist"}, 404
-        
->>>>>>> 0e58e5c87a85290b1832eba7f98cbc9cf7498e6e
 
 
 class Signup(Resource):

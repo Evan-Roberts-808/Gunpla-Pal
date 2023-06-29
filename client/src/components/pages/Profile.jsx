@@ -9,7 +9,7 @@ const Profile = () => {
   const { user } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState('collection');
   const [viewWishlist, setViewWishlist] = useState(false);
-  const [userCollection, setUserCollectionuserCollection] = useState([]);
+  const [userCollection, setUserCollection] = useState([]);
   const [userWishlists, setUserWishlists] = useState([]);
   const [edit, setEdit] = useState(false);
   const [showSkillLevelForm, setShowSkillLevelForm] = useState(false);
@@ -83,15 +83,14 @@ const Profile = () => {
       fetchCollectedGunplasByGrade();
     }
   }, [user]);
-  
-  
+
 
   useEffect(() => {
     if (user) {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
-          setUserCollectionuserCollection(data); // Assuming the response data is in the correct format
+          setUserCollection(data); // Assuming the response data is in the correct format
         })
         .catch((error) => console.log(error));
     }
@@ -129,7 +128,7 @@ const Profile = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setUserCollectionuserCollection((prevState) =>
+        setUserCollection((prevState) =>
           prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
         );
       });
@@ -147,7 +146,7 @@ const Profile = () => {
     })
     .then((response) => response.json())
     .then((data) => {
-      setUserCollections((prevState) =>
+      setUserCollection((prevState) =>
         prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
       );
       fetch(`/api/${user.username}/wishlists`)
@@ -183,6 +182,10 @@ const Profile = () => {
                       <p className="card-text text-truncate">
                         {collection.gunpla.notes}
                       </p>
+                      <button
+                        className="collection-button"
+                        onClick={() => handleMoveToWishlist(collection.gunpla.id)}
+                      >Move to Wishlist</button>
                       <button
                         className="collection-button"
                         onClick={() => handleCollectionDelete(collection.gunpla.id)}
@@ -236,7 +239,7 @@ const Profile = () => {
       fetch(`/api/${user.username}/collections`)
       .then((response) => response.json())
       .then((data) => {
-        setUserCollections(data)
+        setUserCollection(data)
       })
     })
   }
@@ -266,6 +269,10 @@ const Profile = () => {
                       <p className="card-text text-truncate">
                         {wishlist.gunpla.notes}
                       </p>
+                      <button
+                        className="wishlist-button"
+                        onClick={() => handleMoveToCollection(wishlist.gunpla.id)}
+                      >Move to Collection</button>
                       <button
                         className="wishlist-button"
                         onClick={() => handleWishlistDelete(wishlist.gunpla.id)}
