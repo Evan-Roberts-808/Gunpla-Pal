@@ -28,14 +28,11 @@ const DatabaseByGrade = () => {
   });
 
   function handleCommentClick(gunpla_id_comment){
-    // console.log(gunpla_id_comment)
     fetch(`/api/comments/${gunpla_id_comment}`)
     .then(resp => resp.json())
     .then(data => {
-      // console.log(data)
-      // console.log(data.comments.user.username)
       setComments(data.comments)})
-    
+  
   }
 
   const handleSubmit = (values, gunpla_id) => {
