@@ -135,6 +135,29 @@ const Profile = () => {
       });
   };
 
+  const handleMoveToWishlist = (gunpla_id) => {
+    fetch("/api/collections/move-to-wishlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserCollections((prevState) =>
+        prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/wishlists`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserWishlists(data)
+      })
+    })
+  }
+
   const renderCollections = () => {
     if (!userCollection || userCollection.length === 0) {
       return <p>No collections found.</p>;
@@ -154,8 +177,12 @@ const Profile = () => {
                     <div className="card-body">
                       <h5 className="card-title">{collection.gunpla.model}</h5>
                       <p className="card-text">{collection.gunpla.series}</p>
-                      <p className="card-text">{collection.gunpla.release_date}</p>
-                      <p className="card-text text-truncate">{collection.gunpla.notes}</p>
+                      <p className="card-text">
+                        {collection.gunpla.release_date}
+                      </p>
+                      <p className="card-text text-truncate">
+                        {collection.gunpla.notes}
+                      </p>
                       <button
                         className="collection-button"
                         onClick={() => handleCollectionDelete(collection.gunpla.id)}
@@ -191,6 +218,29 @@ const Profile = () => {
       });
   };
 
+  const handleMoveToCollection = (gunpla_id) => {
+    fetch("/api/wishlist/move-to-collection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserWishlists((prevState) =>
+        prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/collections`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserCollections(data)
+      })
+    })
+  }
+
   const renderWishlists = () => {
     if (!userWishlists || userWishlists.length === 0) {
       return <p>No wishlists found. </p>;
@@ -210,8 +260,12 @@ const Profile = () => {
                     <div className="card-body">
                       <h5 className="card-title">{wishlist.gunpla.model}</h5>
                       <p className="card-text">{wishlist.gunpla.series}</p>
-                      <p className="card-text">{wishlist.gunpla.release_date}</p>
-                      <p className="card-text text-truncate">{wishlist.gunpla.notes}</p>
+                      <p className="card-text">
+                        {wishlist.gunpla.release_date}
+                      </p>
+                      <p className="card-text text-truncate">
+                        {wishlist.gunpla.notes}
+                      </p>
                       <button
                         className="wishlist-button"
                         onClick={() => handleWishlistDelete(wishlist.gunpla.id)}
