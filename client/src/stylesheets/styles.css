@@ -10,6 +10,7 @@
 
 * {
     font-family: 'Roboto Mono', monospace;
+
 }
 
 html, body {
@@ -18,6 +19,9 @@ html, body {
     padding: 0;
 }
 
+body {
+    overflow-x: hidden;
+}
 
 .App {
     min-height: 100vh;
@@ -131,6 +135,81 @@ html, body {
     margin-bottom: 20px;
 }
 
+.gunpla-card {
+    margin: 5px;
+}
+
+.wishlist, .collection {
+    font-size: 14px;
+    padding-right: 2px;
+}
+
+.collection-button {
+    margin-right: 10px;
+}
+
+.model-row {
+    margin-top: 20px;
+}
+
+/* Sign Up / In */
+
+.signup-image-col {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  
+  .signup-image {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    object-position: left;
+  }
+
+  .form-field {
+    width: 30%;
+  }
+
+  .btn {
+    margin-top: 10px;
+    background-color: var(--RX78-blue);
+    border-color: var(--RX78-blue)
+  }
+
+/* Profile Page */
+
+.profile-pic {
+    width: 100%;
+}
+
+.collection-section, .wishlist-section {
+  color: #888888;
+  font-size: 14px;
+  cursor: pointer;
+  order: 2;
+}
+
+.wishlist-section.active, .collection-section.active {
+  color: #000000;
+  font-size: 25px;
+  cursor: pointer;
+  font-weight: 700;
+  order: 1;
+}
+
+.row {
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+.section-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
 /* Footer */
 
 footer {
@@ -139,7 +218,7 @@ footer {
     padding-top: 20px;
     background-color: var(--RX78-blue);
     flex-shrink: 0;
-    margin-top: 30px;
+    /* margin-top: 30px; */
   }
 
   footer a {
