@@ -73,6 +73,7 @@ class UserSkillLevel(Resource):
 
 api.add_resource(UserSkillLevel, '/users/<string:username>/skill_level')
 
+
 class CollectionsByUser(Resource):
     @login_required
     def get(self, username):
@@ -121,6 +122,22 @@ api.add_resource(CollectionsByUser, '/<string:username>/collections')
 
 
 # api.add_resource(CollectionsByID, '/collections/<int:collection_id>')
+
+@app.route("/users/<string:username>/stats", methods=["GET"])
+@login_required
+def user_stats(username):
+    try:
+        user = User.query.filter(User.username == username).first()
+        if user:
+            total_collections = len(user.collections)
+            total_wishlists = len(user.wishlists)
+            return {
+                'total_collections': total_collections,
+                'total_wishlists': total_wishlists
+            }, 200
+        return {'error': 'user not found'}, 404
+    except:
+        return {'error': 'user not found'}, 404
 
 
 @app.route("/collections/add", methods=["POST"])
