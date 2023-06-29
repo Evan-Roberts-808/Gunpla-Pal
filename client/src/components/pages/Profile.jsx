@@ -11,6 +11,7 @@ const Profile = () => {
   const [userDetails, setUserDetails] = useState([])
   const [userWishlists, setUserWishlists] = useState([])
   const [edit, setEdit] = useState(false)
+  const [showSkillLevelForm, setShowSkillLevelForm] = useState(false)
   const navigate = useNavigate();
 
 
@@ -18,9 +19,18 @@ const Profile = () => {
     bio: ""
   };
 
+  const initialSkillLevelValues = {
+    skillLevel: '',
+  };  
+
   const validationSchema = Yup.object({
     bio: Yup.string().required("Please fill out your bio")
 });
+
+  const skillLevelValidationSchema = Yup.object({
+    skillLevel: Yup.string().required('Please select a skill level'),
+});
+
 
 const handleSubmit = (values) => {
   console.log(values)
@@ -32,6 +42,26 @@ const handleSubmit = (values) => {
   .then(resp => resp.json())
   handleEditSwitch()
   }
+
+const handleSkillLevelSubmit = (values) => {
+  fetch(`/api/users/${user.username}/skill_level`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(values),
+  })
+  .then((resp) => resp.json())
+  .then((data) => {
+    setUser((prevUser) => ({
+      ...prevUser,
+      skill_level: values.skillLevel,
+    }));
+    setShowSkillLevelForm(false);
+  })
+  .catch((error) => {
+    console.error(error);
+  });
+}
+
   
   // console.log(user)
   useEffect(() => {
@@ -68,8 +98,6 @@ const handleSubmit = (values) => {
   function handleEditSwitch(){
     setEdit(prevEdit => !prevEdit)
   }
-
-  
 
 const handleCollectionDelete = (gunpla_id) => {
   fetch("/api/collections/remove", {
@@ -160,43 +188,64 @@ const handleCollectionDelete = (gunpla_id) => {
     <Container>
       {user ? (
         <>
-        <Row>
-          <Col md={4}>
-            <Image src={user.profile_pic} alt="profile_picture" roundedCircle/>
-          </Col>
-          <Col md={8}>
-          <h2>User Profile: {user.username}</h2>
-          <p>Name: {user.name}</p>
-          <p>Email: {user.email}</p>
-          {!edit ? 
-          <p>Bio: {user.bio}<button onClick={()=>handleEditSwitch()}>Edit Bio</button></p> 
-            : 
-          <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
-          <Form>
-            <div>
-          <Field type="text" name="bio" id="bio" />
-          <ErrorMessage name="bio" component="div" />
-            </div> 
-              <button type='submit'>Submit
-              </button>
-            </Form>
-            </Formik>}
-          </Col>
-        </Row>
-        <hr />
-        <Row>
-        <h2 onClick={() => switchView()}>Collection</h2>
-        <h2 onClick={() => switchView()}>Wishlist</h2>
-        </Row>
-        <hr/>
-        <div>{renderCollections()}</div>
-        <div>{renderWishlists()}</div>
+          <Row>
+            <Col md={4}>
+              <Image src={user.profile_pic} alt="profile_picture" roundedCircle/>
+            </Col>
+            <Col md={8}>
+              <h2>User Profile: {user.username}</h2>
+              <p>Name: {user.name}</p>
+              <p>Email: {user.email}</p>
+              {!edit ? (
+                <>
+                  <p>
+                    Bio: {user.bio}
+                    <button onClick={() => handleEditSwitch()}>Edit Bio</button>
+                  </p>
+                  {showSkillLevelForm ? (
+                    <Formik
+                      initialValues={initialSkillLevelValues}
+                      validationSchema={skillLevelValidationSchema}
+                      onSubmit={handleSkillLevelSubmit}
+                    >
+                      <Form>
+                        <div>
+                          <label htmlFor="skillLevel">Skill Level:</label>
+                          <Field as="select" name="skillLevel" id="skillLevel">
+                            <option value="">Select skill level</option>
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                          </Field>
+                          <ErrorMessage name="skillLevel" component="div" />
+                        </div>
+                        <button type="submit">Submit</button>
+                      </Form>
+                    </Formik>
+                  ) : (
+                    <button onClick={() => setShowSkillLevelForm(true)}>Update Skill Level</button>
+                  )}
+                </>
+              ) : (
+                <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+                  <Form>
+                    <div>
+                      <Field type="text" name="bio" id="bio" />
+                      <ErrorMessage name="bio" component="div" />
+                    </div>
+                    <button type="submit">Submit</button>
+                  </Form>
+                </Formik>
+              )}
+            </Col>
+          </Row>
+          <hr />
         </>
       ) : (
         <p>Loading...</p>
       )}
     </Container>
-  )
-}
+  );
+  };
 
-export default Profile
+  export default Profile;
