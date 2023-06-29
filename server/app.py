@@ -2,7 +2,7 @@ from flask_migrate import Migrate
 from flask import Flask, request, session, make_response, jsonify, redirect
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from config import app, db, api, Resource
-from models import Gunpla, User, Collection, Wishlist, Theme
+from models import Gunpla, User, Collection, Wishlist, Theme, Comment
 import ipdb
 
 
@@ -219,6 +219,30 @@ def remove_from_wishlist():
         return {"message": "removed wishlist"}, 201
     else:
         return {"error": "skill issue"}, 404
+    
+@app.route('/comments/add', methods=["POST"])
+@login_required
+def add_comment():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+    comment_text = data.get('values', {}).get('comment')
+
+    user = current_user
+    comment = Comment(user_id=user.id, gunpla_id=gunpla_id, text=comment_text)
+    db.session.add(comment)
+    db.session.commit()
+    return {"message": "added comment"}
+
+class Comments(Resource):
+    def get(self, gunpla_id):
+        try:
+            comments_dict = [c.to_dict() for c in Comment.query.filter(Comment.gunpla_id == gunpla_id).all()]
+            return {"comments": comments_dict}
+        except:
+            return {"failed to get comment"}, 500
+
+
+api.add_resource(Comments, '/comments/<int:gunpla_id>')
 
 
 @app.route("/users/<string:username>/instagram_link", methods=["PATCH"])

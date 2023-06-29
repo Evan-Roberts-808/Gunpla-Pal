@@ -2,14 +2,56 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Container, Pagination } from "react-bootstrap";
 import { FaClipboardList, FaHeart } from "react-icons/fa";
+import Accordion from 'react-bootstrap/Accordion';
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+
 
 const DatabaseByGrade = () => {
+  
   const { grade } = useParams();
   const [gunplas, setGunplas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [comments, setComments] = useState([]);
   const gunplasPerRow = 6;
   const rowsPerPage = 4;
   const pageLimit = 2;
+
+
+
+  const initialValues = {
+    comment: "",
+  };
+
+  const validationSchema = Yup.object({
+    comment: Yup.string()
+  });
+
+  function handleCommentClick(gunpla_id_comment){
+    // console.log(gunpla_id_comment)
+    fetch(`/api/comments/${gunpla_id_comment}`)
+    .then(resp => resp.json())
+    .then(data => {
+      // console.log(data)
+      // console.log(data.comments.user.username)
+      setComments(data.comments)})
+    
+  }
+
+  const handleSubmit = (values, gunpla_id) => {
+    
+    console.log(gunpla_id)
+    console.log(values)
+    fetch(`/api/comments/add`, {
+      method: 'POST',
+      headers: { 'Content-type': 'application/json' },
+      body: JSON.stringify({values, gunpla_id}),
+    })
+      .then((resp) => resp.json())
+      .then((data) => {
+      });
+
+  };
 
   // SEARCH STATE
   const [search, setSearch] = useState("");
@@ -84,6 +126,11 @@ const DatabaseByGrade = () => {
       });
   };
 
+  const commentStrings = comments.map((comment) => {
+    console.log(comment.user.username)
+    return (<div key = {comment.id}><p>{comment.user.username}:</p> <p >{comment.text}</p></div>)
+  }) 
+
   const gunplaDisplay = currentGunplas.map((gunpla) => {
     return (
       <div className="row mb-3" key={gunpla.id}>
@@ -110,6 +157,31 @@ const DatabaseByGrade = () => {
                     <FaHeart className="feature-icon wishlist" />
                     Wishlist
                   </button>
+                  <Accordion alwaysOpen>
+                    <Accordion.Item eventKey="0" onClick = {() => handleCommentClick(gunpla.id)}>
+                      <Accordion.Header>Comments</Accordion.Header>
+                      <Accordion.Body>
+                        {commentStrings}
+                      </Accordion.Body>
+                    </Accordion.Item>
+                    
+                    <Accordion.Item eventKey="1">
+                      <Accordion.Header>Add A Comment</Accordion.Header>
+                      <Accordion.Body>
+                        <Formik
+                          initialValues={initialValues}
+                          validationSchema={validationSchema}
+                          onSubmit={(values) => handleSubmit(values, gunpla.id)}
+                          >
+                        <Form>
+                          <Field type="text" name="comment" id="comment" />
+                          <button type="submit">Post</button>
+                        </Form>
+                        
+                        </Formik>
+                      </Accordion.Body>
+                    </Accordion.Item>
+                  </Accordion>
                 </div>
               </div>
             </div>
