@@ -9,16 +9,19 @@ const Profile = () => {
   const { user } = useContext(UserContext);
   const [activeSection, setActiveSection] = useState('collection');
   const [viewWishlist, setViewWishlist] = useState(false);
-  const [userDetails, setUserDetails] = useState([]);
+  const [userCollection, setUserCollection] = useState([]);
   const [userWishlists, setUserWishlists] = useState([]);
   const [edit, setEdit] = useState(false);
   const [showSkillLevelForm, setShowSkillLevelForm] = useState(false);
   const [selectedSkillLevel, setSelectedSkillLevel] = useState('');
+  const [collectedGunplasByGrade, setCollectedGunplasByGrade] = useState([]);
+
 
   const navigate = useNavigate();
 
   const initialValues = {
     bio: '',
+    instagramLink: ''
   };
 
   const initialSkillLevelValues = {
@@ -27,6 +30,7 @@ const Profile = () => {
 
   const validationSchema = Yup.object({
     bio: Yup.string().required('Please fill out your bio'),
+    instagramLink: Yup.string().url('Invalid Instagram link')
   });
 
   const skillLevelValidationSchema = Yup.object({
@@ -59,10 +63,34 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
+      const fetchCollectedGunplasByGrade = () => {
+        fetch(`/api/users/${user.username}/collections_by_grade`)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Failed to fetch collected Gunplas by grade');
+            }
+          })
+          .then((data) => {
+            setCollectedGunplasByGrade(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      };
+  
+      fetchCollectedGunplasByGrade();
+    }
+  }, [user]);
+
+
+  useEffect(() => {
+    if (user) {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
-          setUserDetails(data); // Assuming the response data is in the correct format
+          setUserCollection(data); // Assuming the response data is in the correct format
         })
         .catch((error) => console.log(error));
     }
@@ -100,20 +128,43 @@ const Profile = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setUserDetails((prevState) =>
+        setUserCollection((prevState) =>
           prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
         );
       });
   };
 
+  const handleMoveToWishlist = (gunpla_id) => {
+    fetch("/api/collections/move-to-wishlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserCollection((prevState) =>
+        prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/wishlists`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserWishlists(data)
+      })
+    })
+  }
+
   const renderCollections = () => {
-    if (!userDetails || userDetails.length === 0) {
+    if (!userCollection || userCollection.length === 0) {
       return <p>No collections found.</p>;
     }
 
     return (
       <Row>
-        {userDetails.map((collection) => (
+        {userCollection.map((collection) => (
           <div className="row mb-3" key={collection.id}>
             <div className="col">
               <Card>
@@ -125,8 +176,16 @@ const Profile = () => {
                     <div className="card-body">
                       <h5 className="card-title">{collection.gunpla.model}</h5>
                       <p className="card-text">{collection.gunpla.series}</p>
-                      <p className="card-text">{collection.gunpla.release_date}</p>
-                      <p className="card-text text-truncate">{collection.gunpla.notes}</p>
+                      <p className="card-text">
+                        {collection.gunpla.release_date}
+                      </p>
+                      <p className="card-text text-truncate">
+                        {collection.gunpla.notes}
+                      </p>
+                      <button
+                        className="collection-button"
+                        onClick={() => handleMoveToWishlist(collection.gunpla.id)}
+                      >Move to Wishlist</button>
                       <button
                         className="collection-button"
                         onClick={() => handleCollectionDelete(collection.gunpla.id)}
@@ -162,6 +221,29 @@ const Profile = () => {
       });
   };
 
+  const handleMoveToCollection = (gunpla_id) => {
+    fetch("/api/wishlist/move-to-collection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserWishlists((prevState) =>
+        prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/collections`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserCollection(data)
+      })
+    })
+  }
+
   const renderWishlists = () => {
     if (!userWishlists || userWishlists.length === 0) {
       return <p>No wishlists found. </p>;
@@ -181,8 +263,16 @@ const Profile = () => {
                     <div className="card-body">
                       <h5 className="card-title">{wishlist.gunpla.model}</h5>
                       <p className="card-text">{wishlist.gunpla.series}</p>
-                      <p className="card-text">{wishlist.gunpla.release_date}</p>
-                      <p className="card-text text-truncate">{wishlist.gunpla.notes}</p>
+                      <p className="card-text">
+                        {wishlist.gunpla.release_date}
+                      </p>
+                      <p className="card-text text-truncate">
+                        {wishlist.gunpla.notes}
+                      </p>
+                      <button
+                        className="wishlist-button"
+                        onClick={() => handleMoveToCollection(wishlist.gunpla.id)}
+                      >Move to Collection</button>
                       <button
                         className="wishlist-button"
                         onClick={() => handleWishlistDelete(wishlist.gunpla.id)}
@@ -201,29 +291,78 @@ const Profile = () => {
   };
 
   const renderSkillLevelStars = () => {
+
     if (user.skill_level === 'Beginner') {
-      return <span>⭐</span>;
+      return <span>🥉</span>;
     } else if (user.skill_level === 'Intermediate') {
-      return <span>⭐⭐</span>;
+      return <span>🥈</span>;
     } else if (user.skill_level === 'Advanced') {
-      return <span>⭐⭐⭐</span>;
+      return <span>🥇</span>;
+
     } else {
       return null;
     }
   };
 
+  const renderStats = () => {
+    if (!userCollection || userCollection.length === 0) {
+      return <p>No collections found.</p>;
+    }
+  
+    const totalGunplas = userCollection.length;
+    const totalWishlistedItems = userWishlists.length;
+    const totalGunplasByGrade = {};
+  
+    // Count the Gunplas by grade
+    userCollection.forEach((collection) => {
+      const grade = collection.gunpla.grade;
+      if (grade in totalGunplasByGrade) {
+        totalGunplasByGrade[grade]++;
+      } else {
+        totalGunplasByGrade[grade] = 1;
+      }
+    });
+  
+    return (
+      <div>
+        <h3>Stats</h3>
+        <p>Total Gunplas Collected: {totalGunplas}</p>
+        <p>Total Wishlisted Items: {totalWishlistedItems}</p>
+        <h5>Gunplas Collected/Built by Grade:</h5>
+        <ul style={{ listStyleType: 'none', padding: 0 }}>
+          {Object.entries(totalGunplasByGrade).map(([grade, count]) => (
+            <li key={grade}>
+              {grade}: {count}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  };
+  
+
   return (
     <Container>
-      {user ? (
-        <>
-          <Row>
-            <Col md={4}>
-              <Image src={user.profile_pic} alt="profile_picture" className="profile-pic" roundedCircle />
-            </Col>
-            <Col md={8}>
-              <h2>{user.username}</h2>
-              <p>Member since: {user.created_at}</p>
-              {showSkillLevelForm ? (
+    {user ? (
+      <>
+        <Row>
+          <Col md={4}>
+            <Image src={user.profile_pic} alt="profile_picture" className="profile-pic" roundedCircle />
+          </Col>
+          <Col md={8}>
+            <h2>{user.username}</h2>
+            <p>Member since: {user.created_at}</p>
+            {!edit ? (
+                <>
+                  <p>
+                    Bio: {user.bio}
+                    <button onClick={handleEditSwitch}>Edit Bio</button>
+                  </p>
+                  <p>
+                    Instagram: {user.instagramLink}
+                    <button onClick={handleEditSwitch}>Edit Instagram Link</button>
+                  </p>
+                  {showSkillLevelForm ? (
                     <Formik
                       initialValues={initialSkillLevelValues}
                       validationSchema={skillLevelValidationSchema}
@@ -231,14 +370,14 @@ const Profile = () => {
                     >
                       <Form>
                         <div>
-                          <label htmlFor="skill_level">Skill Level:</label>
-                          <Field as="select" name="skill_level" id="skill_level">
+                          <label htmlFor="skillLevel">Skill Level:</label>
+                          <Field as="select" name="skillLevel" id="skillLevel">
                             <option value="">Select skill level</option>
                             <option value="Beginner">Beginner</option>
                             <option value="Intermediate">Intermediate</option>
                             <option value="Advanced">Advanced</option>
                           </Field>
-                          <ErrorMessage name="skill_level" component="div" />
+                          <ErrorMessage name="skillLevel" component="div" />
                         </div>
                         <button type="submit">Submit</button>
                       </Form>
@@ -251,56 +390,54 @@ const Profile = () => {
                       <button onClick={() => setShowSkillLevelForm(true)}>Update Skill Level</button>
                     </>
                   )}
-              {!edit ? (
-                <p>
-                  Bio: {user.bio}
-                  <button onClick={() => handleEditSwitch()}>Edit Bio</button>
-                </p>
-                
+                </>
               ) : (
-                <Formik
-                  initialValues={initialValues}
-                  validationSchema={validationSchema}
-                  onSubmit={handleSubmit}
-                >
+                <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
                   <Form>
                     <div>
                       <Field type="text" name="bio" id="bio" />
                       <ErrorMessage name="bio" component="div" />
                     </div>
+                    <div>
+                      <Field type="text" name="instagramLink" id="instagramLink" />
+                      <ErrorMessage name="instagramLink" component="div" />
+                    </div>
                     <button type="submit">Submit</button>
                   </Form>
                 </Formik>
               )}
-            </Col>
-          </Row>
-          <hr />
-          <Row>
-            <Col md={2} style={{ order: activeSection === 'collection' ? 1 : 2 }} className="section-button">
-              <h2
-                className={activeSection === 'collection' ? 'collection-section active' : 'collection-section'}
-                onClick={() => switchView('collection')}
-              >
-                Collection
-              </h2>
-            </Col>
-            <Col md={2} style={{ order: activeSection === 'collection' ? 2 : 1 }} className="section-button">
-              <h2
-                className={activeSection === 'wishlist' ? 'wishlist-section active' : 'wishlist-section'}
-                onClick={() => switchView('wishlist')}
-              >
-                Wishlist
-              </h2>
-            </Col>
-          </Row>
-          <hr />
-          <div>{activeSection === 'collection' ? renderCollections() : renderWishlists()}</div>
-        </>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </Container>
-  );
+          </Col>
+        </Row>
+        <hr />
+        <Row>
+        {renderStats()}
+        <hr/>
+          <Col md={2} style={{ order: activeSection === 'collection' ? 1 : 2 }} className="section-button">
+            <h2
+              className={activeSection === 'collection' ? 'collection-section active' : 'collection-section'}
+              onClick={() => switchView('collection')}
+            >
+              Collection
+            </h2>
+          </Col>
+          <Col md={2} style={{ order: activeSection === 'collection' ? 2 : 1 }} className="section-button">
+            <h2
+              className={activeSection === 'wishlist' ? 'wishlist-section active' : 'wishlist-section'}
+              onClick={() => switchView('wishlist')}
+            >
+              Wishlist
+            </h2>
+          </Col>
+        </Row>
+        <hr />
+        <div>{activeSection === 'collection' ? renderCollections() : renderWishlists()}</div>
+      </>
+    ) : (
+      <p>Loading...</p>
+    )}
+  </Container>
+);
 };
 
 export default Profile;
+

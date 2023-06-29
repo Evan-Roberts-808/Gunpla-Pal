@@ -151,6 +151,7 @@ const Signup = ({ updateUser }) => {
                   </button>
                 </Form>
               </Formik>
+              <p>Already a user?<span style={{"cursor": "pointer", "margin-left":"10px"}} onClick={() => navigate('/login')}>Sign In</span></p>
             </Col>
           </Row>
         </Col>

@@ -100,6 +100,23 @@ class CollectionsByUser(Resource):
 api.add_resource(CollectionsByUser, '/<string:username>/collections')
 
 
+@app.route("/users/<string:username>/stats", methods=["GET"])
+@login_required
+def user_stats(username):
+    try:
+        user = User.query.filter(User.username == username).first()
+        if user:
+            total_collections = len(user.collections)
+            total_wishlists = len(user.wishlists)
+            return {
+                'total_collections': total_collections,
+                'total_wishlists': total_wishlists
+            }, 200
+        return {'error': 'user not found'}, 404
+    except:
+        return {'error': 'user not found'}, 404
+
+
 @app.route("/collections/add", methods=["POST"])
 @login_required
 def add_to_collection():
@@ -130,6 +147,25 @@ def remove_from_collection():
         return {"message": "removed collection"}, 201
     else:
         return {"error": "not found"}, 404
+
+
+@app.route("/collections/move-to-wishlist", methods=["POST"])
+def move_to_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    user = current_user
+
+    collection = Collection.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
+    if collection:
+        wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
+        db.session.add(wishlist)
+        db.session.delete(collection)
+        db.session.commit()
+        return {"message": "Moved to wishlist"}, 201
+    else:
+        return {"Gunpla": "Gunpla not found in collection"}, 404
 
 
 class WishlistsByUser(Resource):
@@ -183,6 +219,39 @@ def remove_from_wishlist():
         return {"message": "removed wishlist"}, 201
     else:
         return {"error": "skill issue"}, 404
+
+
+@app.route("/users/<string:username>/instagram_link", methods=["PATCH"])
+@login_required
+def update_instagram_link(username):
+    data = request.get_json()
+    instagram_link = data.get("instagramLink")
+    try:
+        user = User.query.filter(User.username == username).first()
+        user.instagram_link = instagram_link
+        db.session.commit()
+        return {"message": "Instagram link updated successfully"}, 200
+    except:
+        return {"error": "Failed to update Instagram link"}, 500
+
+
+@app.route("/wishlist/move-to-collection", methods=["POST"])
+def move_to_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    user = current_user
+
+    wishlist = Wishlist.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
+    if wishlist:
+        collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
+        db.session.add(collection)
+        db.session.delete(wishlist)
+        db.session.commit()
+        return {"message": "Moved to collection"}, 201
+    else:
+        return {"Gunpla": "Gunpla not found in wishlist"}, 404
 
 
 class Signup(Resource):
