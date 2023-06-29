@@ -113,6 +113,24 @@ def remove_from_collection():
     else:
         return {"error": "not found"}, 404
 
+@app.route("/collections/move-to-wishlist", methods=["POST"])
+def move_to_wishlist():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    user = current_user
+
+    collection = Collection.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
+    if collection:
+        wishlist = Wishlist(user_id=user.id, gunpla_id=gunpla_id)
+        db.session.add(wishlist)
+        db.session.delete(collection)
+        db.session.commit()
+        return {"message": "Moved to wishlist"}, 201
+    else:
+        return {"Gunpla": "Gunpla not found in collection"}, 404
+
 
 class WishlistsByUser(Resource):
     @login_required
@@ -165,6 +183,26 @@ def remove_from_wishlist():
         return {"message": "removed wishlist"}, 201
     else:
         return {"error": "skill issue"}, 404
+
+
+@app.route("/wishlist/move-to-collection", methods=["POST"])
+def move_to_collection():
+    data = request.get_json()
+    gunpla_id = data.get("gunpla_id")
+
+    user = current_user
+
+    wishlist = Wishlist.query.filter_by(
+        user_id=user.id, gunpla_id=gunpla_id).first()
+    if wishlist:
+        collection = Collection(user_id=user.id, gunpla_id=gunpla_id)
+        db.session.add(collection)
+        db.session.delete(wishlist)
+        db.session.commit()
+        return {"message": "Moved to collection"}, 201
+    else:
+        return {"Gunpla": "Gunpla not found in wishlist"}, 404
+        
 
 
 class Signup(Resource):

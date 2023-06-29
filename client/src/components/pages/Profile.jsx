@@ -82,6 +82,29 @@ const Profile = () => {
       });
   };
 
+  const handleMoveToWishlist = (gunpla_id) => {
+    fetch("/api/collections/move-to-wishlist", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserCollections((prevState) =>
+        prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/wishlists`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserWishlists(data)
+      })
+    })
+  }
+
   const renderCollections = () => {
     if (!userCollections || userCollections.length === 0) {
       return <p>No collections found.</p>;
@@ -110,6 +133,10 @@ const Profile = () => {
                       <p className="card-text text-truncate">
                         {collection.gunpla.notes}
                       </p>
+                      <button
+                        className="collection-button"
+                        onClick={() => handleMoveToWishlist(collection.gunpla.id)}
+                      >Move to Wishlist</button>
                       <button
                         className="collection-button"
                         onClick={() =>
@@ -147,6 +174,29 @@ const Profile = () => {
       });
   };
 
+  const handleMoveToCollection = (gunpla_id) => {
+    fetch("/api/wishlist/move-to-collection", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        gunpla_id: gunpla_id,
+      }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      setUserWishlists((prevState) =>
+        prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
+      );
+      fetch(`/api/${user.username}/collections`)
+      .then((response) => response.json())
+      .then((data) => {
+        setUserCollections(data)
+      })
+    })
+  }
+
   const renderWishlists = () => {
     if (!userWishlists || userWishlists.length === 0) {
       return <p>No wishlists found. </p>;
@@ -175,6 +225,10 @@ const Profile = () => {
                       <p className="card-text text-truncate">
                         {wishlist.gunpla.notes}
                       </p>
+                      <button
+                        className="wishlist-button"
+                        onClick={() => handleMoveToCollection(wishlist.gunpla.id)}
+                      >Move to Collection</button>
                       <button
                         className="wishlist-button"
                         onClick={() => handleWishlistDelete(wishlist.gunpla.id)}
