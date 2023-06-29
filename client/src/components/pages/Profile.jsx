@@ -13,11 +13,14 @@ const Profile = () => {
   const [edit, setEdit] = useState(false);
   const [showSkillLevelForm, setShowSkillLevelForm] = useState(false);
   const [selectedSkillLevel, setSelectedSkillLevel] = useState('');
+  const [collectedGunplasByGrade, setCollectedGunplasByGrade] = useState([]);
+
 
   const navigate = useNavigate();
 
   const initialValues = {
     bio: '',
+    instagramLink: ''
   };
 
   const initialSkillLevelValues = {
@@ -26,6 +29,7 @@ const Profile = () => {
 
   const validationSchema = Yup.object({
     bio: Yup.string().required('Please fill out your bio'),
+    instagramLink: Yup.string().url('Invalid Instagram link')
   });
 
   const skillLevelValidationSchema = Yup.object({
@@ -56,6 +60,31 @@ const Profile = () => {
         setSelectedSkillLevel(values.skillLevel); // Update the selected skill level
       });
   };
+
+  useEffect(() => {
+    if (user) {
+      const fetchCollectedGunplasByGrade = () => {
+        fetch(`/api/users/${user.username}/collections_by_grade`)
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('Failed to fetch collected Gunplas by grade');
+            }
+          })
+          .then((data) => {
+            setCollectedGunplasByGrade(data);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      };
+  
+      fetchCollectedGunplasByGrade();
+    }
+  }, [user]);
+  
+  
 
   useEffect(() => {
     if (user) {
@@ -173,15 +202,48 @@ const Profile = () => {
 
   const renderSkillLevelStars = () => {
     if (selectedSkillLevel === 'Beginner') {
-      return <span>⭐</span>;
+      return <span>🥉</span>;
     } else if (selectedSkillLevel === 'Intermediate') {
-      return <span>⭐⭐</span>;
+      return <span>🥈</span>;
     } else if (selectedSkillLevel === 'Advanced') {
-      return <span>⭐⭐⭐</span>;
+      return <span>🥇</span>;
     } else {
       return null;
     }
   };
+
+  const renderStats = () => {
+    // Calculate and render user's stats
+    const totalGunplas = userDetails.length; // Total number of collected Gunplas
+    const totalGunplasByGrade = {}; // Object to store the count of Gunplas by grade
+  
+    // Count the Gunplas by grade
+    collectedGunplasByGrade.forEach((gunpla) => {
+      const grade = gunpla.grade;
+      if (grade in totalGunplasByGrade) {
+        totalGunplasByGrade[grade]++;
+      } else {
+        totalGunplasByGrade[grade] = 1;
+      }
+    });
+  
+    return (
+      <div>
+        <h4>Stats</h4>
+        <p>Total Gunplas Collected: {totalGunplas}</p>
+        <h5>Gunplas Collected/Built by Grade:</h5>
+        <ul>
+          {Object.entries(totalGunplasByGrade).map(([grade, count]) => (
+            <li key={grade}>
+              {grade}: {count}
+            </li>
+          ))}
+        </ul>
+        <p>Total Wishlisted Items: {userWishlists.length}</p>
+      </div>
+    );
+  }  
+
 
   return (
     <Container>
@@ -200,6 +262,10 @@ const Profile = () => {
                   <p>
                     Bio: {user.bio}
                     <button onClick={handleEditSwitch}>Edit Bio</button>
+                  </p>
+                  <p>
+                    Instagram: {user.instagramLink}
+                    <button onClick={handleEditSwitch}>Edit Instagram Link</button>
                   </p>
                   {showSkillLevelForm ? (
                     <Formik
@@ -237,6 +303,10 @@ const Profile = () => {
                       <Field type="text" name="bio" id="bio" />
                       <ErrorMessage name="bio" component="div" />
                     </div>
+                    <div>
+                      <Field type="text" name="instagramLink" id="instagramLink" />
+                      <ErrorMessage name="instagramLink" component="div" />
+                    </div>
                     <button type="submit">Submit</button>
                   </Form>
                 </Formik>
@@ -244,6 +314,7 @@ const Profile = () => {
             </Col>
           </Row>
           <hr />
+          {renderStats()}
           <h4>Collections</h4>
           {renderCollections()}
           <h4>Wishlists</h4>
@@ -255,5 +326,4 @@ const Profile = () => {
     </Container>
   );
 };
-
 export default Profile;
