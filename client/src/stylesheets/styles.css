@@ -223,6 +223,11 @@ body {
     width: 100%;
 }
 
+.profile-search {
+    width: 30%;
+    margin-bottom: 15px;
+}
+
 .collection-section, .wishlist-section {
   color: #888888;
   font-size: 14px;
