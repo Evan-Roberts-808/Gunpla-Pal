@@ -219,7 +219,8 @@ def remove_from_wishlist():
         return {"message": "removed wishlist"}, 201
     else:
         return {"error": "skill issue"}, 404
-    
+
+
 @app.route('/comments/add', methods=["POST"])
 @login_required
 def add_comment():
@@ -231,12 +232,14 @@ def add_comment():
     comment = Comment(user_id=user.id, gunpla_id=gunpla_id, text=comment_text)
     db.session.add(comment)
     db.session.commit()
-    return {"message": "added comment"}
+    return comment.to_dict(), 200
+
 
 class Comments(Resource):
     def get(self, gunpla_id):
         try:
-            comments_dict = [c.to_dict() for c in Comment.query.filter(Comment.gunpla_id == gunpla_id).all()]
+            comments_dict = [c.to_dict() for c in Comment.query.filter(
+                Comment.gunpla_id == gunpla_id).all()]
             return {"comments": comments_dict}
         except:
             return {"failed to get comment"}, 500
