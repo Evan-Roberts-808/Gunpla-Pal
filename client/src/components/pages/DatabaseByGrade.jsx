@@ -16,8 +16,15 @@ const DatabaseByGrade = () => {
   const gunplasPerRow = 6;
   const rowsPerPage = 4;
   const pageLimit = 2;
+  const [alertMessage, setAlertMessage] = useState("")
 
-
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    alert(message)
+    setTimeout(() => {
+      setAlertMessage("");
+    }, 3000)
+  }
 
   const initialValues = {
     comment: "",
@@ -97,6 +104,7 @@ const DatabaseByGrade = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        showAlert("Gundam was added to the collection!"); // Show the alert
         console.log("Added to collection", data);
       })
       .catch((error) => {
@@ -116,6 +124,7 @@ const DatabaseByGrade = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        showAlert("Gundam was added to the wishlist!")
         console.log("Added to wishlist", data);
       })
       .catch((error) => {
@@ -197,6 +206,7 @@ const DatabaseByGrade = () => {
 
   if (totalPages <= 1) {
     // No need to display pagination if there is only one page
+    
     return (
       <Container>
         <section className="row">{gunplaDisplay}</section>
