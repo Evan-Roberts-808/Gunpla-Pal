@@ -130,6 +130,41 @@ body {
 
 /* Database */
 
+.comment-modal {
+    width: 100vw;
+    height: 50vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.modal-footer {
+    justify-content: start;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .comment-input:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+
+
+.comment-username {
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.comment-body {
+    overflow-y: auto;
+    height:30vw;
+}
+
 .grade-card {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -172,8 +207,12 @@ body {
     width: 30%;
   }
 
-  .btn {
+  .signup-button {
     margin-top: 10px;
+  }
+
+  .btn {
+    /* margin-top: 10px; */
     background-color: var(--RX78-blue);
     border-color: var(--RX78-blue)
   }
