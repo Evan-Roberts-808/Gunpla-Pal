@@ -43,25 +43,7 @@ class UserProfile(Resource):
 api.add_resource(UserProfile, '/users/<string:username>')
 
 
-class UserBio(Resource):
-    @login_required
-    def patch(self, username):
-        data = request.get_json()
-        try:
-            user = User.query.filter(User.username == username).first()
-            for attr in data:
-                setattr(user, attr, data.get(attr))
-            db.session.add(user)
-            db.session.commit()
-            return {user.to_dict(), 200}
-        except:
-            return {'error': 'could not update bio'}
-
-
-api.add_resource(UserBio, '/users/<string:username>/bio')
-
-
-class UserSkillLevel(Resource):
+class UserProfileUpdate(Resource):
     @login_required
     def patch(self, username):
         data = request.get_json()
@@ -73,10 +55,45 @@ class UserSkillLevel(Resource):
             db.session.commit()
             return user.to_dict(), 200
         except:
-            return {'error': 'could not select skill level'}
+            return {'error': 'could not update user profile'}, 500
 
 
-api.add_resource(UserSkillLevel, '/users/<string:username>/skill_level')
+api.add_resource(UserProfileUpdate, '/users/<string:username>/profile')
+
+# class UserBio(Resource):
+#     @login_required
+#     def patch(self, username):
+#         data = request.get_json()
+#         try:
+#             user = User.query.filter(User.username == username).first()
+#             for attr in data:
+#                 setattr(user, attr, data.get(attr))
+#             db.session.add(user)
+#             db.session.commit()
+#             return {user.to_dict(), 200}
+#         except:
+#             return {'error': 'could not update bio'}
+
+
+# api.add_resource(UserBio, '/users/<string:username>/bio')
+
+
+# class UserSkillLevel(Resource):
+#     @login_required
+#     def patch(self, username):
+#         data = request.get_json()
+#         try:
+#             user = User.query.filter(User.username == username).first()
+#             for attr in data:
+#                 setattr(user, attr, data.get(attr))
+#             db.session.add(user)
+#             db.session.commit()
+#             return user.to_dict(), 200
+#         except:
+#             return {'error': 'could not select skill level'}
+
+
+# api.add_resource(UserSkillLevel, '/users/<string:username>/skill_level')
 
 
 class CollectionsByUser(Resource):
@@ -219,7 +236,8 @@ def remove_from_wishlist():
         return {"message": "removed wishlist"}, 201
     else:
         return {"error": "skill issue"}, 404
-    
+
+
 @app.route('/comments/add', methods=["POST"])
 @login_required
 def add_comment():
@@ -231,12 +249,14 @@ def add_comment():
     comment = Comment(user_id=user.id, gunpla_id=gunpla_id, text=comment_text)
     db.session.add(comment)
     db.session.commit()
-    return {"message": "added comment"}
+    return comment.to_dict(), 200
+
 
 class Comments(Resource):
     def get(self, gunpla_id):
         try:
-            comments_dict = [c.to_dict() for c in Comment.query.filter(Comment.gunpla_id == gunpla_id).all()]
+            comments_dict = [c.to_dict() for c in Comment.query.filter(
+                Comment.gunpla_id == gunpla_id).all()]
             return {"comments": comments_dict}
         except:
             return {"failed to get comment"}, 500

@@ -2,52 +2,35 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Container, Pagination } from "react-bootstrap";
 import { FaClipboardList, FaHeart } from "react-icons/fa";
-import Accordion from 'react-bootstrap/Accordion';
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-
+import CommentModal from "../CommentModal.jsx"
 
 const DatabaseByGrade = () => {
   
   const { grade } = useParams();
   const [gunplas, setGunplas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [comments, setComments] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedGunpla, setSelectedGunpla] = useState(null);
+  const [alertMessage, setAlertMessage] = useState("")
   const gunplasPerRow = 6;
   const rowsPerPage = 4;
   const pageLimit = 2;
 
-
-
-  const initialValues = {
-    comment: "",
-  };
-
-  const validationSchema = Yup.object({
-    comment: Yup.string()
-  });
-
-  function handleCommentClick(gunpla_id_comment){
-    fetch(`/api/comments/${gunpla_id_comment}`)
-    .then(resp => resp.json())
-    .then(data => {
-      setComments(data.comments)})
-  
+  const showAlert = (message) => {
+    setAlertMessage(message);
+    alert(message)
+    setTimeout(() => {
+      setAlertMessage("");
+    }, 3000)
   }
 
-  const handleSubmit = (values, gunpla_id) => {
-    
-    console.log(gunpla_id)
-    console.log(values)
-    fetch(`/api/comments/add`, {
-      method: 'POST',
-      headers: { 'Content-type': 'application/json' },
-      body: JSON.stringify({values, gunpla_id}),
-    })
-      .then((resp) => resp.json())
-      .then((data) => {
-      });
+  const handleGunplaClick = (gunpla) => {
+    setSelectedGunpla(gunpla);
+    setShowModal(true);
+  };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   // SEARCH STATE
@@ -97,6 +80,7 @@ const DatabaseByGrade = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        showAlert('Gundam was added to the collection')
         console.log("Added to collection", data);
       })
       .catch((error) => {
@@ -116,17 +100,13 @@ const DatabaseByGrade = () => {
     })
       .then((response) => response.json())
       .then((data) => {
+        showAlert('Gundam was added to the wishlist')
         console.log("Added to wishlist", data);
       })
       .catch((error) => {
         console.error("Error adding to wishlist", error);
       });
   };
-
-  const commentStrings = comments.map((comment) => {
-    console.log(comment.user.username)
-    return (<div key = {comment.id}><p>{comment.user.username}:</p> <p >{comment.text}</p></div>)
-  }) 
 
   const gunplaDisplay = currentGunplas.map((gunpla) => {
     return (
@@ -150,35 +130,11 @@ const DatabaseByGrade = () => {
                     <FaClipboardList className="feature-icon collection" />
                     Collection
                   </button>
-                  <button onClick={() => addToWishlist(gunpla.id)}>
+                  <button onClick={() => addToWishlist(gunpla.id)} className="collection-button">
                     <FaHeart className="feature-icon wishlist" />
                     Wishlist
                   </button>
-                  <Accordion alwaysOpen>
-                    <Accordion.Item eventKey="0" onClick = {() => handleCommentClick(gunpla.id)}>
-                      <Accordion.Header>Comments</Accordion.Header>
-                      <Accordion.Body>
-                        {commentStrings}
-                      </Accordion.Body>
-                    </Accordion.Item>
-                    
-                    <Accordion.Item eventKey="1">
-                      <Accordion.Header>Add A Comment</Accordion.Header>
-                      <Accordion.Body>
-                        <Formik
-                          initialValues={initialValues}
-                          validationSchema={validationSchema}
-                          onSubmit={(values) => handleSubmit(values, gunpla.id)}
-                          >
-                        <Form>
-                          <Field type="text" name="comment" id="comment" />
-                          <button type="submit">Post</button>
-                        </Form>
-                        
-                        </Formik>
-                      </Accordion.Body>
-                    </Accordion.Item>
-                  </Accordion>
+                  <button onClick={() => handleGunplaClick(gunpla)}>View Comments</button>
                 </div>
               </div>
             </div>
@@ -326,6 +282,11 @@ const DatabaseByGrade = () => {
           />
         </Pagination>
       </div>
+      <CommentModal
+  selectedGunpla={selectedGunpla}
+  showModal={showModal}
+  onCloseModal={handleCloseModal}
+/>
     </Container>
   );
 };
