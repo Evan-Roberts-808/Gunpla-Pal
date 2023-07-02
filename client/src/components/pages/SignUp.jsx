@@ -146,7 +146,7 @@ const Signup = ({ updateUser }) => {
                       className="error-message"
                     />
                   </div>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-primary signup-button">
                     Submit
                   </button>
                 </Form>
