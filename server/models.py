@@ -12,7 +12,6 @@ from config import db, bcrypt
 
 ################## Models Below####################
 
-
 class Gunpla(db.Model, SerializerMixin):
     __tablename__ = 'gunplas'
 

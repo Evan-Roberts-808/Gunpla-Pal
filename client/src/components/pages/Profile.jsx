@@ -37,28 +37,24 @@ const Profile = () => {
     skillLevel: Yup.string().required("Skill level is required"),
   });
 
-
   useEffect(() => {
     if (user) {
       fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
-          setUserCollection(data); // Assuming the response data is in the correct format
+          setUserCollection(data);
         })
         .catch((error) => console.log(error));
     }
   }, [user]);
 
-  // SEARCH STATE
   const [search, setSearch] = useState("");
 
-  // HANDLE SEARCH
   function handleSearch(e) {
     setSearch(e.target.value);
     setCurrentPage(1);
   }
 
-  // SEARCHED GUNDAMS ARRAYS
   const searchedCollectionGunplas = [...userCollection].filter((el) => {
     const searchedNameMatch = el.gunpla.model
       .toLowerCase()
@@ -326,7 +322,6 @@ const Profile = () => {
     const totalWishlistedItems = userWishlists.length;
     const totalGunplasByGrade = {};
 
-    // Count the Gunplas by grade
     userCollection.forEach((collection) => {
       const grade = collection.gunpla.grade;
       if (grade in totalGunplasByGrade) {
@@ -360,7 +355,6 @@ const Profile = () => {
       skill_level: values.skillLevel,
     };
 
-    // Send the data to the API endpoint
     fetch(`/api/users/${user.username}/profile`, {
       method: "PATCH",
       headers: {
@@ -370,28 +364,20 @@ const Profile = () => {
     })
       .then((response) => {
         if (response.ok) {
-          // Handle successful response
           return response.json();
-          
         } else {
-          // Handle error response
           throw new Error("Could not update user profile");
         }
       })
       .then((updatedUser) => {
-        console.log(updatedUser)
-        // Perform any necessary actions with the updated user data
-        updateUser(updatedUser)
-        // Reset form submission state
+        console.log(updatedUser);
+        updateUser(updatedUser);
         setSubmitting(false);
-        setEdit(false)
+        setEdit(false);
       })
       .catch((error) => {
-        // Handle error
-        // Set form errors based on the error
         setErrors({ bio: error.message });
 
-        // Reset form submission state
         setSubmitting(false);
       });
   };
@@ -429,32 +415,63 @@ const Profile = () => {
                   validationSchema={validationSchema}
                   onSubmit={handleSubmit}
                 >
-<Form>
-    <div className="form-group">
-      <label htmlFor="instagramLink">Instagram:</label>
-      <Field type="text" name="instagramLink" id="instagramLink" className="form-control form-field"/>
-      <ErrorMessage name="instagramLink" component="div" className="error-message" />
-    </div>
-    <div className="form-group">
-      <label htmlFor="skillLevel">Skill Level:</label>
-      <Field as="select" name="skillLevel" id="skillLevel" className="form-control form-field">
-        <option value="">Select Skill Level</option>
-        {skillLevelOptions.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </Field>
-      <ErrorMessage name="skillLevel" component="div" className="error-message" />
-    </div>
-    <div className="form-group">
-      <label htmlFor="bio">Bio:</label>
-      <Field type="text" name="bio" id="bio" className="form-control form-field"/>
-      <ErrorMessage name="bio" component="div" className="error-message" />
-    </div>
-    <button type="submit" className="submit-button btn btn-primary signup-button">Submit</button>
-  </Form>
-
+                  <Form>
+                    <div className="form-group">
+                      <label htmlFor="instagramLink">Instagram:</label>
+                      <Field
+                        type="text"
+                        name="instagramLink"
+                        id="instagramLink"
+                        className="form-control form-field"
+                      />
+                      <ErrorMessage
+                        name="instagramLink"
+                        component="div"
+                        className="error-message"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="skillLevel">Skill Level:</label>
+                      <Field
+                        as="select"
+                        name="skillLevel"
+                        id="skillLevel"
+                        className="form-control form-field"
+                      >
+                        <option value="">Select Skill Level</option>
+                        {skillLevelOptions.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
+                        ))}
+                      </Field>
+                      <ErrorMessage
+                        name="skillLevel"
+                        component="div"
+                        className="error-message"
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="bio">Bio:</label>
+                      <Field
+                        type="text"
+                        name="bio"
+                        id="bio"
+                        className="form-control form-field"
+                      />
+                      <ErrorMessage
+                        name="bio"
+                        component="div"
+                        className="error-message"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className="submit-button btn btn-primary signup-button"
+                    >
+                      Submit
+                    </button>
+                  </Form>
                 </Formik>
               )}
             </Col>
@@ -511,27 +528,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
-// const handleSubmit = (values) => {
-//   fetch(`/api/users/${user.username}/bio`, {
-//     method: 'PATCH',
-//     headers: { 'Content-type': 'application/json' },
-//     body: JSON.stringify(values),
-//   })
-//     .then((resp) => resp.json())
-//     .then((data) => {
-//       handleEditSwitch();
-//     });
-// };
-
-// const handleSkillLevelSubmit = (values) => {
-//   fetch(`/api/users/${user.username}/skill_level`, {
-//     method: 'PATCH',
-//     headers: { 'Content-Type': 'application/json' },
-//     body: JSON.stringify(values),
-//   })
-//     .then((resp) => resp.json())
-//     .then((data) => {
-//       setSelectedSkillLevel(values); // Update the selected skill level
-//     });
-// };

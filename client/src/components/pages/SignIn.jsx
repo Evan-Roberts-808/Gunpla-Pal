@@ -24,7 +24,6 @@ const SignIn = ({ updateUser }) => {
       ...values,
     };
 
-    // Send a POST request to create the user in the database
     fetch("/api/login", {
       method: "POST",
       headers: {
@@ -34,7 +33,6 @@ const SignIn = ({ updateUser }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        // Handle the response from the server
         setUser(data);
         navigate("/database");
       })
