@@ -1,23 +1,23 @@
-import { useState, useEffect, useContext } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import 'bootstrap/dist/css/bootstrap.css';
-import './stylesheets/styles.css';
-import Header from './components/Header.jsx';
-import Footer from './components/Footer.jsx';
-import Home from './components/pages/Home.jsx';
-import Database from './components/pages/Database.jsx';
-import DatabaseByGrade from './components/pages/DatabaseByGrade.jsx';
-import SignIn from './components/pages/SignIn.jsx';
-import SignUp from './components/pages/SignUp.jsx';
-import Profile from './components/pages/Profile.jsx';
-import { UserProvider, UserContext } from './context/UserContext'; // Import UserProvider and UserContext
+import { useState, useEffect, useContext } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.css";
+import "./stylesheets/styles.css";
+import Header from "./components/Header.jsx";
+import Footer from "./components/Footer.jsx";
+import Home from "./components/pages/Home.jsx";
+import Database from "./components/pages/Database.jsx";
+import DatabaseByGrade from "./components/pages/DatabaseByGrade.jsx";
+import SignIn from "./components/pages/SignIn.jsx";
+import SignUp from "./components/pages/SignUp.jsx";
+import Profile from "./components/pages/Profile.jsx";
+import { UserProvider, UserContext } from "./context/UserContext";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const { user, setUser } = useContext(UserContext); // Use the UserContext object here
+  const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
-    fetch('/api/check_session')
+    fetch("/api/check_session")
       .then((response) => {
         if (response.ok) {
           response.json().then((user) => {
@@ -39,9 +39,14 @@ function App() {
   }
 
   return (
-    <div className={`App ${darkMode ? 'DarkMode' : 'LightMode'}`}>
+    <div className={`App ${darkMode ? "DarkMode" : "LightMode"}`}>
       <Router>
-        <Header darkMode={darkMode} updateDarkMode={() => setDarkMode((prev) => !prev)} user={user} onLogout={onLogout} />
+        <Header
+          darkMode={darkMode}
+          updateDarkMode={() => setDarkMode((prev) => !prev)}
+          user={user}
+          onLogout={onLogout}
+        />
         <Routes>
           <Route path="/" index element={<Home />} />
           <Route path="/database" element={<Database />} />

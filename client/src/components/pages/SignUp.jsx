@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { UserContext } from "../../context/UserContext";
 
 const Signup = ({ updateUser }) => {
-  const { user, setUser } = useContext(UserContext); // Updated: useContext to get setUser
+  const { user, setUser } = useContext(UserContext);
   const navigate = useNavigate();
   console.log(user);
   const defaultProfilePics = [
@@ -50,7 +50,7 @@ const Signup = ({ updateUser }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setUser(data); // Updated: Use setUser to update user data
+        setUser(data);
         navigate("/database");
       })
       .catch((error) => console.error(error));

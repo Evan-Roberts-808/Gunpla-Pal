@@ -2,27 +2,26 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Container, Pagination } from "react-bootstrap";
 import { FaClipboardList, FaHeart } from "react-icons/fa";
-import CommentModal from "../CommentModal.jsx"
+import CommentModal from "../CommentModal.jsx";
 
 const DatabaseByGrade = () => {
-  
   const { grade } = useParams();
   const [gunplas, setGunplas] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedGunpla, setSelectedGunpla] = useState(null);
-  const [alertMessage, setAlertMessage] = useState("")
+  const [alertMessage, setAlertMessage] = useState("");
   const gunplasPerRow = 6;
   const rowsPerPage = 4;
   const pageLimit = 2;
 
   const showAlert = (message) => {
     setAlertMessage(message);
-    alert(message)
+    alert(message);
     setTimeout(() => {
       setAlertMessage("");
-    }, 3000)
-  }
+    }, 3000);
+  };
 
   const handleGunplaClick = (gunpla) => {
     setSelectedGunpla(gunpla);
@@ -33,16 +32,13 @@ const DatabaseByGrade = () => {
     setShowModal(false);
   };
 
-  // SEARCH STATE
   const [search, setSearch] = useState("");
 
-  // HANDLE SEARCH
   function handleSearch(e) {
     setSearch(e.target.value);
     setCurrentPage(1);
   }
 
-  // SEARCHED GUNDAMS ARRAY
   const searchedGunplas = [...gunplas].filter((el) => {
     const searchedNameMatch = el.model
       .toLowerCase()
@@ -57,7 +53,10 @@ const DatabaseByGrade = () => {
   const gunplasPerPage = gunplasPerRow * rowsPerPage;
   const indexOfLastGunpla = currentPage * gunplasPerPage;
   const indexOfFirstGunpla = indexOfLastGunpla - gunplasPerPage;
-  const currentGunplas = searchedGunplas.slice(indexOfFirstGunpla, indexOfLastGunpla);
+  const currentGunplas = searchedGunplas.slice(
+    indexOfFirstGunpla,
+    indexOfLastGunpla
+  );
 
   useEffect(() => {
     fetch(`/api/gunplas/${grade}`)
@@ -80,7 +79,7 @@ const DatabaseByGrade = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        showAlert('Gundam was added to the collection')
+        showAlert("Gundam was added to the collection");
         console.log("Added to collection", data);
       })
       .catch((error) => {
@@ -100,7 +99,7 @@ const DatabaseByGrade = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        showAlert('Gundam was added to the wishlist')
+        showAlert("Gundam was added to the wishlist");
         console.log("Added to wishlist", data);
       })
       .catch((error) => {
@@ -130,11 +129,16 @@ const DatabaseByGrade = () => {
                     <FaClipboardList className="feature-icon collection" />
                     Collection
                   </button>
-                  <button onClick={() => addToWishlist(gunpla.id)} className="collection-button">
+                  <button
+                    onClick={() => addToWishlist(gunpla.id)}
+                    className="collection-button"
+                  >
                     <FaHeart className="feature-icon wishlist" />
                     Wishlist
                   </button>
-                  <button onClick={() => handleGunplaClick(gunpla)}>View Comments</button>
+                  <button onClick={() => handleGunplaClick(gunpla)}>
+                    View Comments
+                  </button>
                 </div>
               </div>
             </div>
@@ -283,10 +287,10 @@ const DatabaseByGrade = () => {
         </Pagination>
       </div>
       <CommentModal
-  selectedGunpla={selectedGunpla}
-  showModal={showModal}
-  onCloseModal={handleCloseModal}
-/>
+        selectedGunpla={selectedGunpla}
+        showModal={showModal}
+        onCloseModal={handleCloseModal}
+      />
     </Container>
   );
 };
