@@ -41,7 +41,7 @@ const Signup = ({ updateUser }) => {
       profile_pic: profilePic,
     };
 
-    fetch("/api/signup", {
+    fetch("https://gunpla-pal.onrender.com/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -151,7 +151,7 @@ const Signup = ({ updateUser }) => {
                   </button>
                 </Form>
               </Formik>
-              <p>Already a user?<span style={{"cursor": "pointer", "margin-left":"10px"}} onClick={() => navigate('/login')}>Sign In</span></p>
+              <p>Already a user?<span style={{"cursor": "pointer", "marginLeft":"10px"}} onClick={() => navigate('/login')}>Sign In</span></p>
             </Col>
           </Row>
         </Col>

@@ -5,7 +5,7 @@ import { Row, Col, Container } from "react-bootstrap";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 
-const SignIn = ({ updateUser }) => {
+const SignIn = () => {
   const { setUser } = useContext(UserContext);
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ const SignIn = ({ updateUser }) => {
       ...values,
     };
 
-    fetch("/api/login", {
+    fetch("https://gunpla-pal.onrender.com/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,7 +84,7 @@ const SignIn = ({ updateUser }) => {
                   </button>
                 </Form>
               </Formik>
-              <p>Don't have an account?<span style={{"cursor": "pointer", "margin-left":"10px"}} onClick={() => navigate('/signup')}>Sign Up</span></p>
+              <p>Don't have an account?<span style={{"cursor": "pointer", "marginLeft":"10px"}} onClick={() => navigate('/signup')}>Sign Up</span></p>
             </Col>
           </Row>
         </Col>

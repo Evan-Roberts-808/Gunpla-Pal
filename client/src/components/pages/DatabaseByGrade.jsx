@@ -59,7 +59,7 @@ const DatabaseByGrade = () => {
   );
 
   useEffect(() => {
-    fetch(`/api/gunplas/${grade}`)
+    fetch(`https://gunpla-pal.onrender.com/gunplas/${grade}`)
       .then((response) => response.json())
       .then((data) => setGunplas(data))
       .catch((error) => {
@@ -68,7 +68,7 @@ const DatabaseByGrade = () => {
   }, [grade]);
 
   const addToCollection = (gunpla_id) => {
-    fetch("/api/collections/add", {
+    fetch("https://gunpla-pal.onrender.com/collections/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -88,7 +88,7 @@ const DatabaseByGrade = () => {
   };
 
   const addToWishlist = (gunpla_id) => {
-    fetch("/api/wishlist/add", {
+    fetch("https://gunpla-pal.onrender.com/wishlist/add", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.css";
 import "./stylesheets/styles.css";
@@ -10,61 +10,45 @@ import DatabaseByGrade from "./components/pages/DatabaseByGrade.jsx";
 import SignIn from "./components/pages/SignIn.jsx";
 import SignUp from "./components/pages/SignUp.jsx";
 import Profile from "./components/pages/Profile.jsx";
-import { UserProvider, UserContext } from "./context/UserContext";
+import { UserContext } from "./context/UserContext";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
-  const { user, setUser } = useContext(UserContext);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
-    fetch("/api/check_session")
-      .then((response) => {
+    if (user == null) {
+      fetch('https://gunpla-pal.onrender.com/check_session')
+      .then(response => {
         if (response.ok) {
-          response.json().then((user) => {
-            setUser(user);
-          });
+          response.json().then(user => {setUser(user)})
         }
       })
-      .catch((error) => {
-        console.log(error);
-      });
-  }, []);
-
-  const updateUser = (userData) => {
-    setUser(userData);
-  };
-
-  function onLogout(loggedOut) {
-    setUser(loggedOut);
-  }
+    }
+  },[])
 
   return (
-    <div className={`App ${darkMode ? "DarkMode" : "LightMode"}`}>
-      <Router>
-        <Header
-          darkMode={darkMode}
-          updateDarkMode={() => setDarkMode((prev) => !prev)}
-          user={user}
-          onLogout={onLogout}
-        />
-        <Routes>
-          <Route path="/" index element={<Home />} />
-          <Route path="/database" element={<Database />} />
-          <Route path="/database/:grade" element={<DatabaseByGrade />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/login" element={<SignIn setUser={updateUser} />} />
-          <Route path="/signUp" element={<SignUp setUser={updateUser} />} />
-        </Routes>
-        <Footer />
-      </Router>
-    </div>
+    <UserContext.Provider value={{user, setUser}}>
+      <div className={`App ${darkMode ? "DarkMode" : "LightMode"}`}>
+        <Router>
+          <Header
+            darkMode={darkMode}
+            updateDarkMode={() => setDarkMode((prev) => !prev)}
+            user={user}
+          />
+          <Routes>
+            <Route path="/" index element={<Home />} />
+            <Route path="/database" element={<Database />} />
+            <Route path="/database/:grade" element={<DatabaseByGrade />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/login" element={<SignIn  />} />
+            <Route path="/signUp" element={<SignUp  />} />
+          </Routes>
+          <Footer />
+        </Router>
+      </div>
+    </UserContext.Provider>
   );
 }
 
-const AppWithContext = () => (
-  <UserProvider>
-    <App />
-  </UserProvider>
-);
-
-export default AppWithContext;
+export default App;
