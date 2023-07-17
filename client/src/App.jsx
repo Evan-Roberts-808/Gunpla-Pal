@@ -18,7 +18,7 @@ function App() {
 
   useEffect(() => {
     if (user == null) {
-      fetch('https://gunpla-pal.onrender.com/check_session')
+      fetch('/api/check_session')
       .then(response => {
         if (response.ok) {
           response.json().then(user => {setUser(user)})

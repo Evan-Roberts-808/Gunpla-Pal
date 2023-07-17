@@ -14,7 +14,7 @@ const CommentModal = ({ showModal, onCloseModal, selectedGunpla }) => {
   console.log(comments);
 
   useEffect(() => {
-    fetch(`https://gunpla-pal.onrender.com/comments/${selectedGunpla.id}`)
+    fetch(`/api/comments/${selectedGunpla.id}`)
       .then((response) => response.json())
       .then((data) => {
         setComments(data.comments);
@@ -41,7 +41,7 @@ const CommentModal = ({ showModal, onCloseModal, selectedGunpla }) => {
       gunpla_id: selectedGunpla.id,
     };
 
-    fetch(`https://gunpla-pal.onrender.com/comments/add`, {
+    fetch(`/api/comments/add`, {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify(commentData),

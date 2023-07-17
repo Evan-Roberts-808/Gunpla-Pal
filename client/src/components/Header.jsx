@@ -8,7 +8,7 @@ function Header({ darkMode, updateDarkMode }) {
 
   const handleLogout = async () => {
     try {
-      await fetch("https://gunpla-pal.onrender.com/logout", {
+      await fetch("/api/logout", {
         method: "POST",
         credentials: "same-origin",
       });

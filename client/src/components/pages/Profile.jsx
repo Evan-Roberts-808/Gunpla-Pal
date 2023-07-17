@@ -39,7 +39,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
-      fetch(`https://gunpla-pal.onrender.com/${user.username}/collections`)
+      fetch(`/api/${user.username}/collections`)
         .then((response) => response.json())
         .then((data) => {
           setUserCollection(data);
@@ -81,7 +81,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (user) {
-      fetch(`https://gunpla-pal.onrender.com/${user.username}/wishlists`)
+      fetch(`/api/${user.username}/wishlists`)
         .then((response) => response.json())
         .then((data) => {
           setUserWishlists(data);
@@ -95,7 +95,7 @@ const Profile = () => {
   };
 
   const handleCollectionDelete = (gunpla_id) => {
-    fetch("https://gunpla-pal.onrender.com/collections/remove", {
+    fetch("/api/collections/remove", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -113,7 +113,7 @@ const Profile = () => {
   };
 
   const handleMoveToWishlist = (gunpla_id) => {
-    fetch("https://gunpla-pal.onrender.com/collections/move-to-wishlist", {
+    fetch("/api/collections/move-to-wishlist", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -127,7 +127,7 @@ const Profile = () => {
         setUserCollection((prevState) =>
           prevState.filter((collection) => collection.gunpla.id !== gunpla_id)
         );
-        fetch(`https://gunpla-pal.onrender.com/${user.username}/wishlists`)
+        fetch(`/api/${user.username}/wishlists`)
           .then((response) => response.json())
           .then((data) => {
             setUserWishlists(data);
@@ -197,7 +197,7 @@ const Profile = () => {
   };
 
   const handleWishlistDelete = (gunpla_id) => {
-    fetch("https://gunpla-pal.onrender.com/wishlist/remove", {
+    fetch("/api/wishlist/remove", {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -215,7 +215,7 @@ const Profile = () => {
   };
 
   const handleMoveToCollection = (gunpla_id) => {
-    fetch("https://gunpla-pal.onrender.com/wishlist/move-to-collection", {
+    fetch("/api/wishlist/move-to-collection", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -229,7 +229,7 @@ const Profile = () => {
         setUserWishlists((prevState) =>
           prevState.filter((wishlist) => wishlist.gunpla.id !== gunpla_id)
         );
-        fetch(`https://gunpla-pal.onrender.com/${user.username}/collections`)
+        fetch(`/api/${user.username}/collections`)
           .then((response) => response.json())
           .then((data) => {
             setUserCollection(data);
@@ -355,7 +355,7 @@ const Profile = () => {
       skill_level: values.skillLevel,
     };
 
-    fetch(`https://gunpla-pal.onrender.com/users/${user.username}/profile`, {
+    fetch(`/api/users/${user.username}/profile`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

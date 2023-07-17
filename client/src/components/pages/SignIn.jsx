@@ -24,7 +24,7 @@ const SignIn = () => {
       ...values,
     };
 
-    fetch("https://gunpla-pal.onrender.com/login", {
+    fetch("/api/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

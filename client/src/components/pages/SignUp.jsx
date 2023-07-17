@@ -41,7 +41,7 @@ const Signup = ({ updateUser }) => {
       profile_pic: profilePic,
     };
 
-    fetch("https://gunpla-pal.onrender.com/signup", {
+    fetch("/api/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

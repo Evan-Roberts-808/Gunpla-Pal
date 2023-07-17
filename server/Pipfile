@@ -20,6 +20,9 @@ honcho = "*"
 gunicorn = "*"
 flask-login = "*"
 flask-bcrypt = "*"
+importlib-resources = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
